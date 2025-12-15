@@ -7,15 +7,12 @@ const ExpenseList = () => {
     const [expenses, setExpenses] = useState([]);
     const [editId, setEditId] = useState(null);
     const [editForm, setEditForm] = useState({});
-    
-    const { ProtectedRoute, isLoggedIn } = useAuth(); 
+    const { ProtectedRoute } = useAuth();
     const primaryColor = '#00796B'; 
 
     useEffect(() => {
-        if (isLoggedIn) {
-            fetchExpenses();
-        }
-    }, [isLoggedIn]); 
+        fetchExpenses();
+    }, []);
 
     const fetchExpenses = async () => {
         try {
