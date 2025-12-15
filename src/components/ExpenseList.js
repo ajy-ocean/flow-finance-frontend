@@ -7,17 +7,19 @@ const ExpenseList = () => {
     const [expenses, setExpenses] = useState([]);
     const [editId, setEditId] = useState(null);
     const [editForm, setEditForm] = useState({});
-    const { ProtectedRoute } = useAuth();
+    
+    const { ProtectedRoute, isLoggedIn } = useAuth(); 
     const primaryColor = '#00796B'; 
 
     useEffect(() => {
-        fetchExpenses();
-    }, []);
+        if (isLoggedIn) {
+            fetchExpenses();
+        }
+    }, [isLoggedIn]); 
 
     const fetchExpenses = async () => {
         try {
             const res = await axios.get('/api/expenses');
-            // Sort by date descending
             const sortedExpenses = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
             setExpenses(sortedExpenses);
         } catch (err) {
@@ -38,7 +40,6 @@ const ExpenseList = () => {
 
     const handleEdit = (expense) => {
         setEditId(expense.id);
-        // Ensure date is formatted correctly for input type="date"
         setEditForm({ ...expense, date: expense.date ? expense.date.split('T')[0] : '' });
     };
 
