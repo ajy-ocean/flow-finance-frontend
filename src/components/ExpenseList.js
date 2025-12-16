@@ -66,7 +66,7 @@ const ExpenseList = () => {
                                     <p style={{ color: '#6B7280', marginBottom: '10px' }}>{expense.category}</p>
                                     <small style={{ color: '#6B7280' }}>{new Date(expense.date).toLocaleDateString()}</small>
                                     <div className="d-flex gap-2 mt-3">
-                                        <Link to={`/edit/${expense.id}`} style={{ background: "#FBBF24", borderRadius: '999px', padding: '6px 16px', color: '#111', textDecoration: 'none' }}>✏️ Edit</Link>
+                                        <Link to={`/add-expense`} style={{ background: "#FBBF24", borderRadius: '999px', padding: '6px 16px', color: '#111', textDecoration: 'none' }}>✏️ Edit</Link>
                                         <button onClick={() => handleDelete(expense.id)} style={{ background: "#EF4444", borderRadius: '999px', padding: '6px 16px', color: 'white', border: 'none' }}>🗑️ Delete</button>
                                     </div>
                                 </div>
