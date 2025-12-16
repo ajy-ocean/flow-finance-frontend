@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 const ExpenseList = () => {
     const [expenses, setExpenses] = useState([]);
-    const [editId, setEditId] = useState(null);
-    const [editForm, setEditForm] = useState({});
-    const { ProtectedRoute } = useAuth();
+    const { logout } = useAuth();
     const primaryColor = '#00796B'; 
 
     useEffect(() => {
@@ -16,99 +14,111 @@ const ExpenseList = () => {
 
     const fetchExpenses = async () => {
         try {
-            const res = await axios.get('/api/expenses');
-            const sortedExpenses = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
-            setExpenses(sortedExpenses);
-        } catch (err) {
-            alert('Error fetching expenses');
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (window.confirm('Delete this expense? This cannot be undone.')) {
-            try {
-                await axios.delete(`/api/expenses/${id}`);
-                fetchExpenses();
-            } catch (err) {
-                alert('Error deleting');
+            const response = await axios.get('/api/expenses');
+            setExpenses(response.data);
+        } catch (error) {
+            console.error('Error fetching expenses:', error);
+            if (error.response && error.response.status !== 401) {
+                alert('Failed to load transactions.');
             }
         }
     };
 
-    const handleEdit = (expense) => {
-        setEditId(expense.id);
-        setEditForm({ ...expense, date: expense.date ? expense.date.split('T')[0] : '' });
-    };
-
-    const handleEditChange = (e) => setEditForm({ ...editForm, [e.target.name]: e.target.value });
-
-    const handleUpdate = async (e) => {
-        e.preventDefault();
-        try {
-            await axios.put(`/api/expenses/${editId}`, editForm);
-            setEditId(null);
-            fetchExpenses();
-        } catch (err) {
-            alert('Error updating');
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this transaction?')) {
+            try {
+                await axios.delete(`/api/expenses/${id}`);
+                fetchExpenses(); 
+                alert('Transaction deleted successfully!');
+            } catch (error) {
+                console.error('Error deleting transaction:', error);
+                alert('Failed to delete transaction.');
+            }
         }
     };
 
-    return (
-        <ProtectedRoute>
-            <div className="container py-5">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h2 className="display-6 text-dark">Transaction Records</h2>
-                    <Link to="/add-expense" className="btn" style={{ backgroundColor: primaryColor, color: 'white' }}>
-                        ➕ Add New
-                    </Link>
-                </div>
-                
-                {expenses.length === 0 && (
-                    <div className="alert alert-info text-center" role="alert">
-                        No expenses recorded yet. <Link to="/add-expense" className="alert-link">Add your first one</Link>.
-                    </div>
-                )}
+    const getCardStyle = (type) => {
+        if (type && type.toLowerCase() === 'income') {
+            return {
+                borderColor: '#28A745', 
+                backgroundColor: '#D4EDDA', 
+                icon: '💰'
+            };
+        }
+        return {
+            borderColor: '#DC3545', 
+            backgroundColor: '#F8D7DA', 
+            icon: '💸'
+        };
+    };
 
-                <div className="row">
-                    {expenses.map((expense) => (
-                        <div key={expense.id} className="col-lg-4 col-md-6 mb-4">
-                            <div className="card h-100 shadow-sm border-0" style={{ borderRadius: '8px' }}>
-                                {editId === expense.id ? (
-                                    <div className="card-body">
-                                        <form onSubmit={handleUpdate}>
-                                            <input type="text" className="form-control mb-2" name="name" value={editForm.name || ''} onChange={handleEditChange} placeholder="Name" />
-                                            <input type="number" className="form-control mb-2" name="amount" value={editForm.amount || ''} onChange={handleEditChange} placeholder="Amount" />
-                                            <input type="date" className="form-control mb-2" name="date" value={editForm.date || ''} onChange={handleEditChange} />
-                                            <textarea className="form-control mb-3" name="description" value={editForm.description || ''} onChange={handleEditChange} placeholder="Description" rows="2" />
-                                            <button type="submit" className="btn btn-sm me-2" style={{ backgroundColor: primaryColor, color: 'white' }}>Save</button>
-                                            <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setEditId(null)}>Cancel</button>
-                                        </form>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <div className="card-body">
-                                            <h5 className="card-title text-dark">{expense.name}</h5>
-                                            <p className="card-text mb-1">
-                                                <strong className="text-muted">Amount:</strong> <span className="fw-bold fs-5 text-danger">₹{expense.amount.toFixed(2)}</span>
-                                            </p>
-                                            <p className="card-text mb-1 text-muted small">
-                                                <strong>Date:</strong> {new Date(expense.date).toLocaleDateString()}
-                                            </p>
-                                            {expense.description && <p className="card-text small mt-2">{expense.description}</p>}
-                                        </div>
-                                        <div className="card-footer bg-light border-0 d-flex justify-content-end">
-                                            <button onClick={() => handleEdit(expense)} className="btn btn-outline-secondary btn-sm me-2">Edit</button>
-                                            <button onClick={() => handleDelete(expense.id)} className="btn btn-outline-danger btn-sm">Delete</button>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    ))}
+    return (
+        <div className="container mt-5">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2 className="text-dark">Transaction History</h2>
+                <div>
+                    <Link to="/add" className="btn btn-sm me-2 text-white" style={{ backgroundColor: primaryColor }}>
+                        + Add New Transaction
+                    </Link>
+                    <button onClick={logout} className="btn btn-sm btn-outline-secondary">
+                        Logout
+                    </button>
                 </div>
-                <Link to="/dashboard" className="btn btn-outline-secondary mt-4">Back to Dashboard</Link>
             </div>
-        </ProtectedRoute>
+
+            {expenses.length === 0 ? (
+                <div className="alert alert-info text-center mt-5">
+                    No transactions recorded yet. <Link to="/add">Add your first transaction!</Link>
+                </div>
+            ) : (
+                <div className="row">
+                    {expenses.map((expense) => {
+                        const style = getCardStyle(expense.type);
+                        
+                        return (
+                            <div key={expense.id} className="col-lg-6 col-md-12 mb-4">
+                                <div className="card shadow-sm h-100" style={{ borderLeft: `5px solid ${style.borderColor}`, backgroundColor: style.backgroundColor }}>
+                                    <div className="card-body">
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <h5 className="card-title text-dark">
+                                                {style.icon} {expense.name}
+                                            </h5>
+                                            <div className="text-end">
+                                                <h4 style={{ color: style.borderColor, marginBottom: '0' }}>
+                                                    {expense.type === 'Income' ? '+' : '-'} ${expense.amount.toFixed(2)}
+                                                </h4>
+                                                <small className="text-muted">{new Date(expense.date).toLocaleDateString()}</small>
+                                            </div>
+                                        </div>
+                                        <p className="card-text mb-2 mt-2 text-muted">
+                                            {expense.category}
+                                        </p>
+
+                                        {/* --- MODERN BUTTONS --- */}
+                                        <div className="d-flex justify-content-end mt-3">
+                                            <Link 
+                                                to={`/edit/${expense.id}`} 
+                                                className="btn btn-sm me-2" 
+                                                style={{ backgroundColor: '#FFC107', color: '#333', borderColor: '#FFC107' }}
+                                            >
+                                                ✏️ Edit
+                                            </Link>
+                                            <button 
+                                                onClick={() => handleDelete(expense.id)} 
+                                                className="btn btn-sm text-white" 
+                                                style={{ backgroundColor: '#DC3545', borderColor: '#DC3545' }}
+                                            >
+                                                🗑️ Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
     );
 };
 
