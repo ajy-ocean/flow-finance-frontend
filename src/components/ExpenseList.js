@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 const ExpenseList = () => {
     const [expenses, setExpenses] = useState([]);
     const { logout } = useAuth();
-    const primaryColor = '#00796B'; 
+    const primaryColor = '#00796B'; // Teal/Green for primary actions
 
     useEffect(() => {
         fetchExpenses();
@@ -14,10 +14,12 @@ const ExpenseList = () => {
 
     const fetchExpenses = async () => {
         try {
+            // JWT CRITICAL: The Authorization header is automatically attached by AuthContext
             const response = await axios.get('/api/expenses');
             setExpenses(response.data);
         } catch (error) {
             console.error('Error fetching expenses:', error);
+            // The AuthContext interceptor should handle 401, but we can catch others:
             if (error.response && error.response.status !== 401) {
                 alert('Failed to load transactions.');
             }
@@ -28,7 +30,7 @@ const ExpenseList = () => {
         if (window.confirm('Are you sure you want to delete this transaction?')) {
             try {
                 await axios.delete(`/api/expenses/${id}`);
-                fetchExpenses(); 
+                fetchExpenses(); // Refresh the list
                 alert('Transaction deleted successfully!');
             } catch (error) {
                 console.error('Error deleting transaction:', error);
@@ -37,17 +39,18 @@ const ExpenseList = () => {
         }
     };
 
+    // Helper to determine color and icon based on type
     const getCardStyle = (type) => {
         if (type && type.toLowerCase() === 'income') {
             return {
-                borderColor: '#28A745', 
-                backgroundColor: '#D4EDDA', 
+                borderColor: '#28A745', // Green
+                backgroundColor: '#D4EDDA', // Light Green background
                 icon: '💰'
             };
         }
         return {
-            borderColor: '#DC3545', 
-            backgroundColor: '#F8D7DA', 
+            borderColor: '#DC3545', // Red
+            backgroundColor: '#F8D7DA', // Light Red background
             icon: '💸'
         };
     };
@@ -57,7 +60,8 @@ const ExpenseList = () => {
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="text-dark">Transaction History</h2>
                 <div>
-                    <Link to="/add" className="btn btn-sm me-2 text-white" style={{ backgroundColor: primaryColor }}>
+                    {/* 🔑 FIX 2: Updated Link to /add-expense */}
+                    <Link to="/add-expense" className="btn btn-sm me-2 text-white" style={{ backgroundColor: primaryColor }}>
                         + Add New Transaction
                     </Link>
                     <button onClick={logout} className="btn btn-sm btn-outline-secondary">
@@ -68,7 +72,7 @@ const ExpenseList = () => {
 
             {expenses.length === 0 ? (
                 <div className="alert alert-info text-center mt-5">
-                    No transactions recorded yet. <Link to="/add">Add your first transaction!</Link>
+                    No transactions recorded yet. <Link to="/add-expense">Add your first transaction!</Link>
                 </div>
             ) : (
                 <div className="row">
@@ -84,8 +88,9 @@ const ExpenseList = () => {
                                                 {style.icon} {expense.name}
                                             </h5>
                                             <div className="text-end">
+                                                {/* 🔑 FIX 1: Changed $ to ₹ */}
                                                 <h4 style={{ color: style.borderColor, marginBottom: '0' }}>
-                                                    {expense.type === 'Income' ? '+' : '-'} ${expense.amount.toFixed(2)}
+                                                    {expense.type === 'Income' ? '+' : '-'} ₹{expense.amount.toFixed(2)}
                                                 </h4>
                                                 <small className="text-muted">{new Date(expense.date).toLocaleDateString()}</small>
                                             </div>
