@@ -41,7 +41,6 @@ const Register = () => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
         setError('');
-
         if (name === 'password') {
             const errors = validatePassword(value);
             setPasswordErrors(errors);
@@ -86,12 +85,10 @@ const Register = () => {
     };
 
     return (
-        <div className="container d-flex justify-content-center align-items-center min-vh-100">
-            <div className="card shadow-lg p-4" style={{ width: '400px' }}>
+        <div className="container d-flex justify-content-center align-items-center min-vh-100 p-3 p-md-5">
+            <div className="card shadow-lg p-4 w-100" style={{ maxWidth: '400px' }}>
                 <h2 className="text-center mb-4" style={{ color: primaryColor }}>Register for Flow Finance</h2>
-                
                 {error && <div className="alert alert-danger">{error}</div>}
-                
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label className="form-label">Email</label>
@@ -104,8 +101,6 @@ const Register = () => {
                             required
                         />
                     </div>
-
-                    {/* PASSWORD FIELD WITH IMAGE TOGGLE */}
                     <div className="mb-3">
                         <label className="form-label">Password</label>
                         <div className="input-group">
@@ -119,20 +114,25 @@ const Register = () => {
                             />
                             <button
                                 type="button"
-                                className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                                className="btn btn-light d-flex align-items-center justify-content-center"
                                 onClick={togglePasswordVisibility}
-                                style={{ borderLeft: 'none', width: '40px', padding: '0' }}
+                                style={{ 
+                                    border: '1px solid #ced4da', 
+                                    borderLeft: 'none',
+                                    backgroundColor: '#fff', 
+                                    width: '40px', 
+                                    height: '38px', 
+                                    padding: '0' 
+                                }}
                                 title={showPassword ? "Hide password" : "Show password"}
                             >
-                                {/* 🔑 USE IMAGE TAG HERE */}
                                 <img 
                                     src={showPassword ? HideIcon : ShowIcon} 
                                     alt={showPassword ? "Hide" : "Show"} 
-                                    style={{ width: '20px', height: '20px' }}
+                                    style={{ width: '20px', height: '20px', border: 'none' }} 
                                 />
                             </button>
                         </div>
-                        
                         {formData.password && (
                             <div className="mt-2">
                                 <small className="text-muted">Password must meet the following criteria:</small>
@@ -153,7 +153,6 @@ const Register = () => {
                         )}
                     </div>
 
-                    {/* CONFIRM PASSWORD FIELD WITH IMAGE TOGGLE */}
                     <div className="mb-3">
                         <label className="form-label">Confirm Password</label>
                         <div className="input-group">
@@ -165,22 +164,28 @@ const Register = () => {
                                 onChange={handleChange}
                                 required
                             />
-                             <button
+                            <button
                                 type="button"
-                                className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                                className="btn btn-light d-flex align-items-center justify-content-center"
                                 onClick={toggleConfirmPasswordVisibility}
-                                style={{ borderLeft: 'none', width: '40px', padding: '0' }}
+                                style={{ 
+                                    border: '1px solid #ced4da',
+                                    borderLeft: 'none',
+                                    backgroundColor: '#fff',
+                                    width: '40px', 
+                                    height: '38px', 
+                                    padding: '0' 
+                                }}
                                 title={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"}
                             >
-                                {/* 🔑 USE IMAGE TAG HERE */}
                                 <img 
                                     src={showConfirmPassword ? HideIcon : ShowIcon} 
                                     alt={showConfirmPassword ? "Hide" : "Show"} 
-                                    style={{ width: '20px', height: '20px' }}
+                                    style={{ width: '20px', height: '20px', border: 'none' }} 
                                 />
                             </button>
                         </div>
-                         {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                        {formData.confirmPassword && formData.password !== formData.confirmPassword && (
                             <div className="invalid-feedback d-block">Passwords do not match.</div>
                         )}
                     </div>

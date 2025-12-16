@@ -35,8 +35,8 @@ const Login = () => {
     };
 
     return (
-        <div className="container d-flex justify-content-center align-items-center min-vh-100">
-            <div className="card shadow-lg p-4" style={{ width: '400px' }}>
+        <div className="container d-flex justify-content-center align-items-center min-vh-100 p-3 p-md-5">
+            <div className="card shadow-lg p-4 w-100" style={{ maxWidth: '400px' }}>
                 <h2 className="text-center mb-4" style={{ color: primaryColor }}>Login to Flow Finance</h2>
                 {error && <div className="alert alert-danger">{error}</div>}
                 <form onSubmit={handleSubmit}>
@@ -64,23 +64,32 @@ const Login = () => {
                             />
                             <button
                                 type="button"
-                                className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                                className="btn btn-light d-flex align-items-center justify-content-center"
                                 onClick={togglePasswordVisibility}
-                                style={{ borderLeft: 'none', width: '40px', padding: '0' }}
+                                style={{ 
+                                    border: '1px solid #ced4da', 
+                                    borderLeft: 'none',
+                                    backgroundColor: '#fff',
+                                    width: '40px', 
+                                    height: '38px', 
+                                    padding: '0' 
+                                }}
                                 title={showPassword ? "Hide password" : "Show password"}
                             >
                                 <img 
                                     src={showPassword ? HideIcon : ShowIcon} 
                                     alt={showPassword ? "Hide" : "Show"} 
-                                    style={{ width: '20px', height: '20px' }}
+                                    style={{ width: '20px', height: '20px', border: 'none' }} 
                                 />
                             </button>
                         </div>
                     </div>
+
                     <button type="submit" className="btn w-100 mt-2 text-white" style={{ backgroundColor: primaryColor }}>
                         Login
                     </button>
                 </form>
+
                 <p className="text-center mt-3">
                     Don't have an account? <Link to="/register" style={{ color: primaryColor }}>Register here</Link>
                 </p>
