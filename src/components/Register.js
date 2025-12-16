@@ -1,57 +1,119 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
-    const [formData, setFormData] = useState({ username: '', password: '', email: '', fullName: '' });
-    const { login } = useAuth(); 
+    const [formData, setFormData] = useState({ 
+        email: '', 
+        password: '', 
+        confirmPassword: '' 
+    });
+    const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // 🔑 NEW STATE: Password Field
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false); // 🔑 NEW STATE: Confirm Password Field
     const navigate = useNavigate();
-    const primaryColor = '#00796B'; 
+    const primaryColor = "#00796B";
 
-    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+        setError('');
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match.');
+            return;
+        }
+
         try {
-            const res = await axios.post('/api/user/register', formData);
-            const token = res.data.accessToken; 
-            login(token); 
-            navigate('/dashboard');
+            await axios.post('/api/user/register', {
+                email: formData.email,
+                password: formData.password
+            });
+            alert('Registration successful! Please log in.');
+            navigate('/');
         } catch (err) {
-            alert('Registration failed: ' + (err.response?.data?.message || 'Error'));
+            console.error("Registration failed:", err);
+            setError(err.response?.data?.message || 'Registration failed. The user may already exist.');
         }
     };
 
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword(!showConfirmPassword);
+    };
+
     return (
-        <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light p-3">
-            <div className="card shadow-lg p-5 w-100" style={{ maxWidth: '450px', borderRadius: '8px' }}>
-                <div style={{ fontSize: '3rem', color: primaryColor, textAlign: 'center', marginBottom: '15px' }}>📝</div>
-                <h2 className="text-center mb-4 text-dark">Create Flow Finance Account</h2>
+        <div className="container d-flex justify-content-center align-items-center min-vh-100">
+            <div className="card shadow-lg p-4" style={{ width: '400px' }}>
+                <h2 className="text-center mb-4" style={{ color: primaryColor }}>Register for Flow Finance</h2>
+                {error && <div className="alert alert-danger">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
-                        <label className="form-label text-muted">Full Name</label>
-                        <input type="text" className="form-control form-control-lg" name="fullName" onChange={handleChange} required />
+                        <label className="form-label">Email</label>
+                        <input
+                            type="email"
+                            className="form-control"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                        />
                     </div>
                     <div className="mb-3">
-                        <label className="form-label text-muted">Email</label>
-                        <input type="email" className="form-control form-control-lg" name="email" onChange={handleChange} required />
+                        <label className="form-label">Password</label>
+                        <div className="input-group">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                className="form-control"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                            />
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary"
+                                onClick={togglePasswordVisibility}
+                                style={{ borderLeft: 'none' }}
+                                title={showPassword ? "Hide password" : "Show password"}
+                            >
+                                {showPassword ? '👁️‍🗨️' : '👁️'}
+                            </button>
+                        </div>
                     </div>
                     <div className="mb-3">
-                        <label className="form-label text-muted">Username</label>
-                        <input type="text" className="form-control form-control-lg" name="username" onChange={handleChange} required />
+                        <label className="form-label">Confirm Password</label>
+                        <div className="input-group">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                className="form-control"
+                                name="confirmPassword"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                required
+                            />
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary"
+                                onClick={toggleConfirmPasswordVisibility}
+                                style={{ borderLeft: 'none' }}
+                                title={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"}
+                            >
+                                {showConfirmPassword ? '👁️‍🗨️' : '👁️'}
+                            </button>
+                        </div>
                     </div>
-                    <div className="mb-4">
-                        <label className="form-label text-muted">Password</label>
-                        <input type="password" className="form-control form-control-lg" name="password" onChange={handleChange} required />
-                    </div>
-                    <div className="d-grid">
-                        <button type="submit" className="btn btn-lg" style={{ backgroundColor: primaryColor, color: 'white' }}>
-                            Register
-                        </button>
-                    </div>
+                    <button type="submit" className="btn w-100 mt-2 text-white" style={{ backgroundColor: primaryColor }}>
+                        Register
+                    </button>
                 </form>
-                <p className="text-center mt-4 text-muted">
+                <p className="text-center mt-3">
                     Already have an account? <Link to="/" style={{ color: primaryColor }}>Login here</Link>
                 </p>
             </div>

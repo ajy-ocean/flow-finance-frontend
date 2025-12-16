@@ -1,80 +1,83 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const { login } = useAuth(); 
+    const [credentials, setCredentials] = useState({ email: '', password: '' });
+    const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // 🔑 NEW STATE
     const navigate = useNavigate();
+    const { login } = useAuth();
     const primaryColor = "#00796B";
+
+    const handleChange = (e) => {
+        setCredentials({ ...credentials, [e.target.name]: e.target.value });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         try {
-            const res = await axios.post("/api/user/login", { username, password });
-            const token = res.data.accessToken; 
-            login(token); 
-            navigate("/dashboard");
+            const response = await axios.post('/api/user/login', credentials);
+            login(response.data.token, response.data.email); 
+            navigate('/dashboard'); 
         } catch (err) {
-            alert("Login failed: " + (err.response?.data?.message || "Invalid Credentials"));
+            console.error("Login failed:", err);
+            setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
         }
     };
 
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
     return (
-        <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light p-3">
-            <div
-                className="card shadow-lg p-5 w-100"
-                style={{ maxWidth: "450px", borderRadius: "8px" }}
-            >
-                <div
-                    style={{
-                        fontSize: "3rem",
-                        color: primaryColor,
-                        textAlign: "center",
-                        marginBottom: "15px",
-                    }}
-                >
-                    📈
-                </div>
-                <h2 className="text-center mb-4 text-dark">Flow Finance Login</h2>
+        <div className="container d-flex justify-content-center align-items-center min-vh-100">
+            <div className="card shadow-lg p-4" style={{ width: '400px' }}>
+                <h2 className="text-center mb-4" style={{ color: primaryColor }}>Login to Flow Finance</h2>
+                {error && <div className="alert alert-danger">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
-                        <label className="form-label text-muted">Username</label>
+                        <label className="form-label">Email</label>
                         <input
-                            type="text"
-                            className="form-control form-control-lg"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            type="email"
+                            className="form-control"
+                            name="email"
+                            value={credentials.email}
+                            onChange={handleChange}
                             required
                         />
                     </div>
-                    <div className="mb-4">
-                        <label className="form-label text-muted">Password</label>
-                        <input
-                            type="password"
-                            className="form-control form-control-lg"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
+                    <div className="mb-3">
+                        <label className="form-label">Password</label>
+                        <div className="input-group">
+                            <input
+                                type={showPassword ? "text" : "password"} // 🔑 DYNAMIC TYPE
+                                className="form-control"
+                                name="password"
+                                value={credentials.password}
+                                onChange={handleChange}
+                                required
+                            />
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary"
+                                onClick={togglePasswordVisibility}
+                                style={{ borderLeft: 'none' }}
+                                title={showPassword ? "Hide password" : "Show password"}
+                            >
+                                {showPassword ? '👁️‍🗨️' : '👁️'} 
+                            </button>
+                        </div>
                     </div>
-                    <div className="d-grid">
-                        <button
-                            type="submit"
-                            className="btn btn-lg"
-                            style={{ backgroundColor: primaryColor, color: "white" }}
-                        >
-                            Sign In
-                        </button>
-                    </div>
+                    <button type="submit" className="btn w-100 mt-2 text-white" style={{ backgroundColor: primaryColor }}>
+                        Login
+                    </button>
                 </form>
-                <p className="text-center mt-4 text-muted">
-                    New user?{" "}
-                    <Link to="/register" style={{ color: primaryColor }}>
-                        Register here
-                    </Link>
+
+                <p className="text-center mt-3">
+                    Don't have an account? <Link to="/register" style={{ color: primaryColor }}>Register here</Link>
                 </p>
             </div>
         </div>
