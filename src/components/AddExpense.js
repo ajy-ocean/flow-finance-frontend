@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const AddExpense = () => {
@@ -14,6 +14,7 @@ const AddExpense = () => {
 
     const navigate = useNavigate();
     const { ProtectedRoute } = useAuth();
+    const location = useLocation();
 
     const colors = {
         primary: "#00796B",
@@ -23,20 +24,37 @@ const AddExpense = () => {
         focus: "0 0 0 0.25rem rgba(13,110,253,0.25)",
     };
 
+    // Get id from query param
+    const queryParams = new URLSearchParams(location.search);
+    const id = queryParams.get("id");
+
+    // Fetch expense if editing
+    useEffect(() => {
+        if (id) {
+            axios.get(`/api/expenses/${id}`)
+                .then(res => setFormData(res.data))
+                .catch(err => alert("Failed to fetch expense data."));
+        }
+    }, [id]);
+
     const handleChange = (e) =>
         setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post("/api/expenses", formData);
-            alert("Expense recorded successfully!");
+            if (id) {
+                // Edit
+                await axios.put(`/api/expenses/${id}`, formData);
+                alert("Expense updated successfully!");
+            } else {
+                // New
+                await axios.post("/api/expenses", formData);
+                alert("Expense recorded successfully!");
+            }
             navigate("/expenses");
         } catch (err) {
-            alert(
-                "Error recording expense: " +
-                    (err.response?.data || "Error")
-            );
+            alert("Error: " + (err.response?.data || "Something went wrong"));
         }
     };
 
@@ -64,22 +82,10 @@ const AddExpense = () => {
 
     return (
         <ProtectedRoute>
-            <div
-                className="d-flex justify-content-center align-items-center min-vh-100 p-3"
-                style={{ background: colors.bg }}
-            >
-                <div
-                    className="card p-4 w-100"
-                    style={{
-                        maxWidth: "600px",
-                        borderRadius: "18px",
-                        background: colors.card,
-                        boxShadow: colors.shadow,
-                        border: "none",
-                    }}
-                >
+            <div className="d-flex justify-content-center align-items-center min-vh-100 p-3" style={{ background: colors.bg }}>
+                <div className="card p-4 w-100" style={{ maxWidth: "600px", borderRadius: "18px", background: colors.card, boxShadow: colors.shadow, border: "none" }}>
                     <h2 className="text-center mb-4 text-dark">
-                        Record New Expense
+                        {id ? "Edit Expense" : "Record New Expense"}
                     </h2>
 
                     <form onSubmit={handleSubmit}>
@@ -94,22 +100,14 @@ const AddExpense = () => {
                                         ? "Date"
                                         : "Description (Optional)"}
                                 </label>
-                                <div
-                                    style={inputWrapperStyle(field)}
-                                    onFocus={() => setFocusedField(field)}
-                                    onBlur={() => setFocusedField(null)}
-                                >
+                                <div style={inputWrapperStyle(field)} onFocus={() => setFocusedField(field)} onBlur={() => setFocusedField(null)}>
                                     {field === "description" ? (
-                                        <textarea
-                                            name={field}
-                                            rows="3"
-                                            onChange={handleChange}
-                                            style={inputStyle}
-                                        />
+                                        <textarea name={field} rows="3" value={formData[field]} onChange={handleChange} style={inputStyle} />
                                     ) : (
                                         <input
                                             type={field === "amount" ? "number" : field === "date" ? "date" : "text"}
                                             name={field}
+                                            value={formData[field]}
                                             onChange={handleChange}
                                             required={field !== "description"}
                                             style={inputStyle}
@@ -120,19 +118,11 @@ const AddExpense = () => {
                         ))}
 
                         <div className="d-grid gap-2">
-                            <button
-                                type="submit"
-                                className="btn btn-lg"
-                                style={{ ...buttonStyle, backgroundColor: colors.primary, color: "white" }}
-                            >
-                                Save Transaction
+                            <button type="submit" className="btn btn-lg" style={{ ...buttonStyle, backgroundColor: colors.primary, color: "white" }}>
+                                {id ? "Update Transaction" : "Save Transaction"}
                             </button>
 
-                            <Link
-                                to="/dashboard"
-                                className="btn btn-lg"
-                                style={{ ...buttonStyle, background: "#E5E7EB", color: "#111" }}
-                            >
+                            <Link to="/expenses" className="btn btn-lg" style={{ ...buttonStyle, background: "#E5E7EB", color: "#111" }}>
                                 Cancel
                             </Link>
                         </div>

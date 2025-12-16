@@ -43,8 +43,12 @@ const ExpenseList = () => {
             <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
                 <h2 className="text-dark">Transaction History</h2>
                 <div className="d-flex gap-2">
-                    <Link to="/add-expense" className="btn" style={{ background: colors.primary, color: "white", borderRadius: "999px", padding: "8px 20px", border: "none" }}>+ Add New Transaction</Link>
-                    <button onClick={logout} className="btn" style={{ background: "#E5E7EB", borderRadius: "999px", border: "none", color: "#111", padding: "8px 20px" }}>Logout</button>
+                    <Link to="/add-expense" className="btn" style={{ background: colors.primary, color: "white", borderRadius: "999px", padding: "8px 20px", border: "none" }}>
+                        + Add New Transaction
+                    </Link>
+                    <button onClick={logout} className="btn" style={{ background: "#E5E7EB", borderRadius: "999px", border: "none", color: "#111", padding: "8px 20px" }}>
+                        Logout
+                    </button>
                 </div>
             </div>
 
@@ -66,8 +70,12 @@ const ExpenseList = () => {
                                     <p style={{ color: '#6B7280', marginBottom: '10px' }}>{expense.category}</p>
                                     <small style={{ color: '#6B7280' }}>{new Date(expense.date).toLocaleDateString()}</small>
                                     <div className="d-flex gap-2 mt-3">
-                                        <Link to={`/edit/${expense.id}`} style={{ background: "#FBBF24", borderRadius: '999px', padding: '6px 16px', color: '#111', textDecoration: 'none' }}>✏️ Edit</Link>
-                                        <button onClick={() => handleDelete(expense.id)} style={{ background: "#EF4444", borderRadius: '999px', padding: '6px 16px', color: 'white', border: 'none' }}>🗑️ Delete</button>
+                                        <Link to={`/add-expense?id=${expense.id}`} style={{ background: "#FBBF24", borderRadius: '999px', padding: '6px 16px', color: '#111', textDecoration: 'none' }}>
+                                            ✏️ Edit
+                                        </Link>
+                                        <button onClick={() => handleDelete(expense.id)} style={{ background: "#EF4444", borderRadius: '999px', padding: '6px 16px', color: 'white', border: 'none' }}>
+                                            🗑️ Delete
+                                        </button>
                                     </div>
                                 </div>
                             </div>
