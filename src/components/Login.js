@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import ShowIcon from '../assets/icons/show.png'; 
+import HideIcon from '../assets/icons/hide.png'; 
 
 const Login = () => {
     const [credentials, setCredentials] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
-    const [showPassword, setShowPassword] = useState(false); // 🔑 NEW STATE
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const { login } = useAuth();
     const primaryColor = "#00796B";
@@ -53,7 +55,7 @@ const Login = () => {
                         <label className="form-label">Password</label>
                         <div className="input-group">
                             <input
-                                type={showPassword ? "text" : "password"} // 🔑 DYNAMIC TYPE
+                                type={showPassword ? "text" : "password"} 
                                 className="form-control"
                                 name="password"
                                 value={credentials.password}
@@ -62,12 +64,16 @@ const Login = () => {
                             />
                             <button
                                 type="button"
-                                className="btn btn-outline-secondary"
+                                className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
                                 onClick={togglePasswordVisibility}
-                                style={{ borderLeft: 'none' }}
+                                style={{ borderLeft: 'none', width: '40px', padding: '0' }}
                                 title={showPassword ? "Hide password" : "Show password"}
                             >
-                                {showPassword ? '👁️‍🗨️' : '👁️'} 
+                                <img 
+                                    src={showPassword ? HideIcon : ShowIcon} 
+                                    alt={showPassword ? "Hide" : "Show"} 
+                                    style={{ width: '20px', height: '20px' }}
+                                />
                             </button>
                         </div>
                     </div>
@@ -75,7 +81,6 @@ const Login = () => {
                         Login
                     </button>
                 </form>
-
                 <p className="text-center mt-3">
                     Don't have an account? <Link to="/register" style={{ color: primaryColor }}>Register here</Link>
                 </p>
