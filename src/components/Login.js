@@ -6,12 +6,13 @@ import ShowIcon from '../assets/icons/show.png';
 import HideIcon from '../assets/icons/hide.png'; 
 
 const Login = () => {
-    const [credentials, setCredentials] = useState({ email: '', password: '' });
+    const [credentials, setCredentials] = useState({ username: '', password: '' });
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const { login } = useAuth();
     const primaryColor = "#00796B";
+    const inputBorderStyle = { border: '1px solid #000' };
 
     const handleChange = (e) => {
         setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -22,7 +23,7 @@ const Login = () => {
         setError('');
         try {
             const response = await axios.post('/api/user/login', credentials);
-            login(response.data.token, response.data.email); 
+            login(response.data.token, response.data.username); 
             navigate('/dashboard'); 
         } catch (err) {
             console.error("Login failed:", err);
@@ -34,23 +35,19 @@ const Login = () => {
         setShowPassword(!showPassword);
     };
 
-    const inputBorderStyle = { border: '1px solid #000' }; 
-
     return (
         <div className="container d-flex justify-content-center align-items-center min-vh-100 p-3 p-md-5">
             <div className="card shadow-lg p-4 w-100" style={{ maxWidth: '400px' }}>
                 <h2 className="text-center mb-4" style={{ color: primaryColor }}>Login to Flow Finance</h2>
-                
                 {error && <div className="alert alert-danger">{error}</div>}
-                
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
-                        <label className="form-label">Email</label>
+                        <label className="form-label">Username</label>
                         <input
-                            type="email"
+                            type="text" 
                             className="form-control"
-                            name="email"
-                            value={credentials.email}
+                            name="username"
+                            value={credentials.username}
                             onChange={handleChange}
                             required
                             style={inputBorderStyle} 
@@ -67,14 +64,14 @@ const Login = () => {
                                 value={credentials.password}
                                 onChange={handleChange}
                                 required
-                                style={{ ...inputBorderStyle, borderRight: showPassword ? inputBorderStyle.border : 'none' }} 
+                                style={{ ...inputBorderStyle, borderRight: showPassword ? inputBorderStyle.border : 'none' }}
                             />
                             <button
                                 type="button"
                                 className="btn btn-light d-flex align-items-center justify-content-center"
                                 onClick={togglePasswordVisibility}
                                 style={{ 
-                                    border: inputBorderStyle.border,
+                                    border: inputBorderStyle.border, 
                                     borderLeft: 'none',
                                     backgroundColor: '#fff', 
                                     width: '40px', 
