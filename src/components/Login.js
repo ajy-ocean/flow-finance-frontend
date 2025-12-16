@@ -6,18 +6,19 @@ import { useAuth } from "../context/AuthContext";
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const { login } = useAuth();
+    const { login } = useAuth(); 
     const navigate = useNavigate();
     const primaryColor = "#00796B";
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post("/api/user/login", { username, password });
-            login();
+            const res = await axios.post("/api/user/login", { username, password });
+            const token = res.data.accessToken; 
+            login(token); 
             navigate("/dashboard");
         } catch (err) {
-            alert("Login failed: " + (err.response?.data || "Invalid Credentials"));
+            alert("Login failed: " + (err.response?.data?.message || "Invalid Credentials"));
         }
     };
 

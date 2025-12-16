@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
     const [formData, setFormData] = useState({ username: '', password: '', email: '', fullName: '' });
-    const { login } = useAuth();
+    const { login } = useAuth(); 
     const navigate = useNavigate();
     const primaryColor = '#00796B'; 
 
@@ -14,11 +14,12 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('/api/user/register', formData);
-            login();
+            const res = await axios.post('/api/user/register', formData);
+            const token = res.data.accessToken; 
+            login(token); 
             navigate('/dashboard');
         } catch (err) {
-            alert('Registration failed: ' + (err.response?.data || 'Error'));
+            alert('Registration failed: ' + (err.response?.data?.message || 'Error'));
         }
     };
 
