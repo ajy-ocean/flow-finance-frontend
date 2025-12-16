@@ -6,7 +6,9 @@ import HideIcon from '../assets/icons/hide.png';
 
 const Register = () => {
     const [formData, setFormData] = useState({ 
+        username: '', 
         email: '', 
+        fullName: '', 
         password: '', 
         confirmPassword: '' 
     });
@@ -67,7 +69,9 @@ const Register = () => {
 
         try {
             await axios.post('/api/user/register', {
+                username: formData.username,
                 email: formData.email,
+                fullName: formData.fullName,
                 password: formData.password
             });
             alert('Registration successful! Please log in.');
@@ -95,6 +99,19 @@ const Register = () => {
                 
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
+                        <label className="form-label">Username</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            name="username"
+                            value={formData.username}
+                            onChange={handleChange}
+                            required
+                            style={inputBorderStyle}
+                        />
+                    </div>
+                    
+                    <div className="mb-3">
                         <label className="form-label">Email</label>
                         <input
                             type="email"
@@ -107,6 +124,19 @@ const Register = () => {
                         />
                     </div>
 
+                    <div className="mb-3">
+                        <label className="form-label">Full Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            name="fullName"
+                            value={formData.fullName}
+                            onChange={handleChange}
+                            required
+                            style={inputBorderStyle}
+                        />
+                    </div>
+                    
                     <div className="mb-3">
                         <label className="form-label">Password</label>
                         <div className="input-group">
