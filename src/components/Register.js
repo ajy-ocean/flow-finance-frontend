@@ -16,6 +16,7 @@ const Register = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false); 
     const navigate = useNavigate();
     const primaryColor = "#00796B";
+    const inputBorderStyle = { border: '1px solid #000' };
 
     const validatePassword = (password) => {
         const errors = [];
@@ -41,6 +42,7 @@ const Register = () => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
         setError('');
+
         if (name === 'password') {
             const errors = validatePassword(value);
             setPasswordErrors(errors);
@@ -88,7 +90,9 @@ const Register = () => {
         <div className="container d-flex justify-content-center align-items-center min-vh-100 p-3 p-md-5">
             <div className="card shadow-lg p-4 w-100" style={{ maxWidth: '400px' }}>
                 <h2 className="text-center mb-4" style={{ color: primaryColor }}>Register for Flow Finance</h2>
+                
                 {error && <div className="alert alert-danger">{error}</div>}
+                
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label className="form-label">Email</label>
@@ -99,8 +103,10 @@ const Register = () => {
                             value={formData.email}
                             onChange={handleChange}
                             required
+                            style={inputBorderStyle}
                         />
                     </div>
+
                     <div className="mb-3">
                         <label className="form-label">Password</label>
                         <div className="input-group">
@@ -111,13 +117,14 @@ const Register = () => {
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
+                                style={{ ...inputBorderStyle, borderRight: showPassword ? inputBorderStyle.border : 'none' }}
                             />
                             <button
                                 type="button"
                                 className="btn btn-light d-flex align-items-center justify-content-center"
                                 onClick={togglePasswordVisibility}
                                 style={{ 
-                                    border: '1px solid #ced4da', 
+                                    border: inputBorderStyle.border, 
                                     borderLeft: 'none',
                                     backgroundColor: '#fff', 
                                     width: '40px', 
@@ -133,6 +140,7 @@ const Register = () => {
                                 />
                             </button>
                         </div>
+                        
                         {formData.password && (
                             <div className="mt-2">
                                 <small className="text-muted">Password must meet the following criteria:</small>
@@ -163,15 +171,16 @@ const Register = () => {
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
                                 required
+                                style={{ ...inputBorderStyle, borderRight: showConfirmPassword ? inputBorderStyle.border : 'none' }}
                             />
                             <button
                                 type="button"
                                 className="btn btn-light d-flex align-items-center justify-content-center"
                                 onClick={toggleConfirmPasswordVisibility}
                                 style={{ 
-                                    border: '1px solid #ced4da',
+                                    border: inputBorderStyle.border, 
                                     borderLeft: 'none',
-                                    backgroundColor: '#fff',
+                                    backgroundColor: '#fff', 
                                     width: '40px', 
                                     height: '38px', 
                                     padding: '0' 

@@ -34,11 +34,15 @@ const Login = () => {
         setShowPassword(!showPassword);
     };
 
+    const inputBorderStyle = { border: '1px solid #000' }; 
+
     return (
         <div className="container d-flex justify-content-center align-items-center min-vh-100 p-3 p-md-5">
             <div className="card shadow-lg p-4 w-100" style={{ maxWidth: '400px' }}>
                 <h2 className="text-center mb-4" style={{ color: primaryColor }}>Login to Flow Finance</h2>
+                
                 {error && <div className="alert alert-danger">{error}</div>}
+                
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label className="form-label">Email</label>
@@ -49,8 +53,10 @@ const Login = () => {
                             value={credentials.email}
                             onChange={handleChange}
                             required
+                            style={inputBorderStyle} 
                         />
                     </div>
+                    
                     <div className="mb-3">
                         <label className="form-label">Password</label>
                         <div className="input-group">
@@ -61,15 +67,16 @@ const Login = () => {
                                 value={credentials.password}
                                 onChange={handleChange}
                                 required
+                                style={{ ...inputBorderStyle, borderRight: showPassword ? inputBorderStyle.border : 'none' }} 
                             />
                             <button
                                 type="button"
                                 className="btn btn-light d-flex align-items-center justify-content-center"
                                 onClick={togglePasswordVisibility}
                                 style={{ 
-                                    border: '1px solid #ced4da', 
+                                    border: inputBorderStyle.border,
                                     borderLeft: 'none',
-                                    backgroundColor: '#fff',
+                                    backgroundColor: '#fff', 
                                     width: '40px', 
                                     height: '38px', 
                                     padding: '0' 
