@@ -1,89 +1,116 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const ExpenseList = () => {
     const [expenses, setExpenses] = useState([]);
-    const { logout } = useAuth();
+    const [editId, setEditId] = useState(null);
+    const [editForm, setEditForm] = useState({});
+    const { ProtectedRoute } = useAuth();
+    const primaryColor = '#00796B'; 
 
-    const colors = { primary: "#00796B", bg: "#F4F7F8", card: "#FFFFFFF0", shadow: "0 8px 25px rgba(0,0,0,0.08)" };
-
-    useEffect(() => { fetchExpenses(); }, []);
+    useEffect(() => {
+        fetchExpenses();
+    }, []);
 
     const fetchExpenses = async () => {
         try {
-            const response = await axios.get('/api/expenses');
-            setExpenses(response.data);
-        } catch (error) {
-            if (error.response && error.response.status !== 401) alert('Failed to load transactions.');
+            const res = await axios.get('/api/expenses');
+            // Sort by date descending
+            const sortedExpenses = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+            setExpenses(sortedExpenses);
+        } catch (err) {
+            alert('Error fetching expenses');
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this transaction?')) {
+        if (window.confirm('Delete this expense? This cannot be undone.')) {
             try {
                 await axios.delete(`/api/expenses/${id}`);
                 fetchExpenses();
-                alert('Transaction deleted successfully!');
-            } catch {
-                alert('Failed to delete transaction.');
+            } catch (err) {
+                alert('Error deleting');
             }
         }
     };
 
-    const getCardStyle = (type) => ({
-        borderColor: type?.toLowerCase() === 'income' ? '#28A745' : '#DC3545',
-        backgroundColor: type?.toLowerCase() === 'income' ? '#D4EDDA' : '#F8D7DA',
-        icon: type?.toLowerCase() === 'income' ? '💰' : '💸'
-    });
+    const handleEdit = (expense) => {
+        setEditId(expense.id);
+        // Ensure date is formatted correctly for input type="date"
+        setEditForm({ ...expense, date: expense.date ? expense.date.split('T')[0] : '' });
+    };
+
+    const handleEditChange = (e) => setEditForm({ ...editForm, [e.target.name]: e.target.value });
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.put(`/api/expenses/${editId}`, editForm);
+            setEditId(null);
+            fetchExpenses();
+        } catch (err) {
+            alert('Error updating');
+        }
+    };
 
     return (
-        <div style={{ background: colors.bg, minHeight: '100vh', padding: '40px 20px' }}>
-            <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-                <h2 className="text-dark">Transaction History</h2>
-                <div className="d-flex gap-2">
-                    <Link to="/add-expense" className="btn" style={{ background: colors.primary, color: "white", borderRadius: "999px", padding: "8px 20px", border: "none" }}>
-                        + Add New Transaction
+        <ProtectedRoute>
+            <div className="container py-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h2 className="display-6 text-dark">Transaction Records</h2>
+                    <Link to="/add-expense" className="btn" style={{ backgroundColor: primaryColor, color: 'white' }}>
+                        ➕ Add New
                     </Link>
-                    <button onClick={logout} className="btn" style={{ background: "#E5E7EB", borderRadius: "999px", border: "none", color: "#111", padding: "8px 20px" }}>
-                        Logout
-                    </button>
                 </div>
-            </div>
+                
+                {expenses.length === 0 && (
+                    <div className="alert alert-info text-center" role="alert">
+                        No expenses recorded yet. <Link to="/add-expense" className="alert-link">Add your first one</Link>.
+                    </div>
+                )}
 
-            {expenses.length === 0 ? (
-                <div className="text-center" style={{ marginTop: '50px', color: '#6B7280' }}>
-                    No transactions recorded yet. <Link to="/add-expense" style={{ color: colors.primary }}>Add your first transaction!</Link>
-                </div>
-            ) : (
-                <div className="row g-4">
-                    {expenses.map(expense => {
-                        const style = getCardStyle(expense.type);
-                        return (
-                            <div key={expense.id} className="col-lg-6 col-md-12">
-                                <div style={{ borderRadius: '16px', background: '#fff', boxShadow: colors.shadow, borderLeft: `5px solid ${style.borderColor}`, padding: '20px' }}>
-                                    <div className="d-flex justify-content-between align-items-center mb-2">
-                                        <h5>{style.icon} {expense.name}</h5>
-                                        <span style={{ color: style.borderColor, fontWeight: '600' }}>{expense.type === 'Income' ? '+' : '-'} ₹{expense.amount.toFixed(2)}</span>
+                <div className="row">
+                    {expenses.map((expense) => (
+                        <div key={expense.id} className="col-lg-4 col-md-6 mb-4">
+                            <div className="card h-100 shadow-sm border-0" style={{ borderRadius: '8px' }}>
+                                {editId === expense.id ? (
+                                    <div className="card-body">
+                                        <form onSubmit={handleUpdate}>
+                                            <input type="text" className="form-control mb-2" name="name" value={editForm.name || ''} onChange={handleEditChange} placeholder="Name" />
+                                            <input type="number" className="form-control mb-2" name="amount" value={editForm.amount || ''} onChange={handleEditChange} placeholder="Amount" />
+                                            <input type="date" className="form-control mb-2" name="date" value={editForm.date || ''} onChange={handleEditChange} />
+                                            <textarea className="form-control mb-3" name="description" value={editForm.description || ''} onChange={handleEditChange} placeholder="Description" rows="2" />
+                                            <button type="submit" className="btn btn-sm me-2" style={{ backgroundColor: primaryColor, color: 'white' }}>Save</button>
+                                            <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setEditId(null)}>Cancel</button>
+                                        </form>
                                     </div>
-                                    <p style={{ color: '#6B7280', marginBottom: '10px' }}>{expense.category}</p>
-                                    <small style={{ color: '#6B7280' }}>{new Date(expense.date).toLocaleDateString()}</small>
-                                    <div className="d-flex gap-2 mt-3">
-                                        <Link to={`/add-expense?id=${expense.id}`} style={{ background: "#FBBF24", borderRadius: '999px', padding: '6px 16px', color: '#111', textDecoration: 'none' }}>
-                                            ✏️ Edit
-                                        </Link>
-                                        <button onClick={() => handleDelete(expense.id)} style={{ background: "#EF4444", borderRadius: '999px', padding: '6px 16px', color: 'white', border: 'none' }}>
-                                            🗑️ Delete
-                                        </button>
-                                    </div>
-                                </div>
+                                ) : (
+                                    <>
+                                        <div className="card-body">
+                                            <h5 className="card-title text-dark">{expense.name}</h5>
+                                            <p className="card-text mb-1">
+                                                <strong className="text-muted">Amount:</strong> <span className="fw-bold fs-5 text-danger">₹{expense.amount.toFixed(2)}</span>
+                                            </p>
+                                            <p className="card-text mb-1 text-muted small">
+                                                <strong>Date:</strong> {new Date(expense.date).toLocaleDateString()}
+                                            </p>
+                                            {expense.description && <p className="card-text small mt-2">{expense.description}</p>}
+                                        </div>
+                                        <div className="card-footer bg-light border-0 d-flex justify-content-end">
+                                            <button onClick={() => handleEdit(expense)} className="btn btn-outline-secondary btn-sm me-2">Edit</button>
+                                            <button onClick={() => handleDelete(expense.id)} className="btn btn-outline-danger btn-sm">Delete</button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
-                        );
-                    })}
+                        </div>
+                    ))}
                 </div>
-            )}
-        </div>
+                <Link to="/dashboard" className="btn btn-outline-secondary mt-4">Back to Dashboard</Link>
+            </div>
+        </ProtectedRoute>
     );
 };
 
