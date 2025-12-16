@@ -13,151 +13,97 @@ const Login = () => {
 
     const { login } = useAuth();
     const navigate = useNavigate();
-    const primaryColor = "#00796B";
+
+    const colors = {
+        primary: "#00796B",
+        bg: "#F4F7F8",
+        card: "#FFFFFFF0",
+        shadow: "0 10px 25px rgba(0,0,0,0.08)",
+        focus: "0 0 0 0.25rem rgba(13,110,253,0.25)"
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post("/api/user/login", {
-                username,
-                password,
-            });
-
-            const token = res.data.accessToken;
-            login(token);
+            const res = await axios.post("/api/user/login", { username, password });
+            login(res.data.accessToken);
             navigate("/dashboard");
         } catch (err) {
-            alert(
-                "Login failed: " +
-                    (err.response?.data?.message || "Invalid Credentials")
-            );
+            alert("Login failed: " + (err.response?.data?.message || "Invalid Credentials"));
         }
     };
 
-    return (
-        <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light p-3">
-            <div
-                className="card shadow-lg p-5 w-100"
-                style={{ maxWidth: "450px", borderRadius: "8px" }}
-            >
-                <div
-                    style={{
-                        fontSize: "3rem",
-                        color: primaryColor,
-                        textAlign: "center",
-                        marginBottom: "15px",
-                    }}
-                >
-                    📈
-                </div>
+    const inputWrapperStyle = (focused) => ({
+        borderRadius: "12px",
+        boxShadow: focused ? colors.focus : "none",
+        transition: "0.2s ease",
+        marginBottom: "15px",
+    });
 
-                <h2 className="text-center mb-4 text-dark">
-                    Flow Finance Login
-                </h2>
+    const inputStyle = {
+        border: "2px solid #111",
+        borderRadius: "12px",
+        padding: "12px",
+        width: "100%",
+        boxSizing: "border-box",
+    };
+
+    const buttonStyle = {
+        borderRadius: "999px",
+        padding: "12px",
+        border: "none",
+        boxShadow: "0 6px 18px rgba(0,0,0,0.2)",
+        backgroundColor: colors.primary,
+        color: "white",
+        fontSize: "16px",
+    };
+
+    return (
+        <div style={{ background: colors.bg, minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
+            <div style={{ maxWidth: "450px", width: "100%", background: colors.card, boxShadow: colors.shadow, borderRadius: "18px", padding: "40px" }}>
+                <div style={{ fontSize: "3rem", color: colors.primary, textAlign: "center", marginBottom: "20px" }}>📈</div>
+                <h2 style={{ textAlign: "center", marginBottom: "30px", color: "#111" }}>Flow Finance Login</h2>
 
                 <form onSubmit={handleSubmit}>
-                    {/* Username */}
-                    <div className="mb-3">
-                        <label className="form-label text-muted">
-                            Username
-                        </label>
+                    <div style={inputWrapperStyle(false)}>
                         <input
                             type="text"
-                            className="form-control form-control-lg"
+                            placeholder="Username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
-                            style={{
-                                border: "2px solid black",
-                            }}
+                            style={inputStyle}
                         />
                     </div>
 
-                    {/* Password */}
-                    <div className="mb-4">
-                        <label className="form-label text-muted">
-                            Password
-                        </label>
-
-                        <div
-                            className="input-group"
-                            onFocus={() => setPasswordFocused(true)}
-                            onBlur={() => setPasswordFocused(false)}
-                            style={{
-                                borderRadius: "0.375rem",
-                                boxShadow: passwordFocused
-                                    ? "0 0 0 0.25rem rgba(13, 110, 253, 0.25)"
-                                    : "none",
-                                transition: "box-shadow 0.2s ease",
-                            }}
-                        >
+                    <div style={inputWrapperStyle(passwordFocused)}>
+                        <div style={{ display: "flex", borderRadius: "12px", overflow: "hidden", border: "2px solid #111" }}>
                             <input
                                 type={showPassword ? "text" : "password"}
-                                className="form-control form-control-lg"
+                                placeholder="Password"
                                 value={password}
-                                onChange={(e) =>
-                                    setPassword(e.target.value)
-                                }
+                                onChange={(e) => setPassword(e.target.value)}
+                                onFocus={() => setPasswordFocused(true)}
+                                onBlur={() => setPasswordFocused(false)}
                                 required
-                                style={{
-                                    border: "2px solid black",
-                                    borderRight: "none",
-                                    boxShadow: "none",
-                                }}
+                                style={{ flex: 1, border: "none", padding: "12px", outline: "none" }}
                             />
-
                             <span
-                                className="input-group-text bg-white"
-                                onClick={() =>
-                                    setShowPassword(!showPassword)
-                                }
-                                style={{
-                                    border: "2px solid black",
-                                    borderLeft: "none",
-                                    cursor: "pointer",
-                                    boxShadow: "none",
-                                }}
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{ cursor: "pointer", background: "#E5E7EB", padding: "0 12px", display: "flex", alignItems: "center" }}
                             >
-                                <img
-                                    src={
-                                        showPassword
-                                            ? HideIcon
-                                            : ShowIcon
-                                    }
-                                    alt="Toggle password visibility"
-                                    style={{
-                                        width: "22px",
-                                        height: "22px",
-                                        pointerEvents: "none",
-                                    }}
-                                />
+                                <img src={showPassword ? HideIcon : ShowIcon} alt="toggle" style={{ width: "22px", height: "22px", pointerEvents: "none" }} />
                             </span>
                         </div>
                     </div>
 
-                    {/* Button */}
-                    <div className="d-grid">
-                        <button
-                            type="submit"
-                            className="btn btn-lg"
-                            style={{
-                                backgroundColor: primaryColor,
-                                color: "white",
-                            }}
-                        >
-                            Sign In
-                        </button>
+                    <div style={{ display: "grid", marginTop: "20px" }}>
+                        <button type="submit" style={buttonStyle}>Sign In</button>
                     </div>
                 </form>
 
-                <p className="text-center mt-4 text-muted">
-                    New user?{" "}
-                    <Link
-                        to="/register"
-                        style={{ color: primaryColor }}
-                    >
-                        Sign Up
-                    </Link>
+                <p style={{ textAlign: "center", marginTop: "20px", color: "#6B7280" }}>
+                    New user? <Link to="/register" style={{ color: colors.primary }}>Sign Up</Link>
                 </p>
             </div>
         </div>

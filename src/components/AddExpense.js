@@ -10,12 +10,18 @@ const AddExpense = () => {
         date: "",
         description: "",
     });
-
     const [focusedField, setFocusedField] = useState(null);
 
     const navigate = useNavigate();
     const { ProtectedRoute } = useAuth();
-    const primaryColor = "#00796B";
+
+    const colors = {
+        primary: "#00796B",
+        bg: "#F4F7F8",
+        card: "#FFFFFFF0",
+        shadow: "0 10px 25px rgba(0,0,0,0.08)",
+        focus: "0 0 0 0.25rem rgba(13,110,253,0.25)",
+    };
 
     const handleChange = (e) =>
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,132 +41,97 @@ const AddExpense = () => {
     };
 
     const inputWrapperStyle = (field) => ({
-        borderRadius: "0.375rem",
-        boxShadow:
-            focusedField === field
-                ? "0 0 0 0.25rem rgba(13, 110, 253, 0.25)"
-                : "none",
-        transition: "box-shadow 0.2s ease",
+        borderRadius: "12px",
+        boxShadow: focusedField === field ? colors.focus : "none",
+        transition: "0.2s ease",
+        marginBottom: "10px",
     });
 
     const inputStyle = {
-        border: "2px solid black",
-        boxShadow: "none",
+        border: "2px solid #111",
+        borderRadius: "12px",
+        padding: "12px",
+        width: "100%",
+        boxSizing: "border-box",
+    };
+
+    const buttonStyle = {
+        borderRadius: "999px",
+        padding: "12px",
+        border: "none",
+        boxShadow: "0 6px 18px rgba(0,0,0,0.2)",
     };
 
     return (
         <ProtectedRoute>
-            <div className="d-flex justify-content-center align-items-center p-3">
+            <div
+                className="d-flex justify-content-center align-items-center min-vh-100 p-3"
+                style={{ background: colors.bg }}
+            >
                 <div
-                    className="card shadow-lg p-4 mt-5 w-100"
-                    style={{ maxWidth: "600px", borderRadius: "8px" }}
+                    className="card p-4 w-100"
+                    style={{
+                        maxWidth: "600px",
+                        borderRadius: "18px",
+                        background: colors.card,
+                        boxShadow: colors.shadow,
+                        border: "none",
+                    }}
                 >
                     <h2 className="text-center mb-4 text-dark">
                         Record New Expense
                     </h2>
 
                     <form onSubmit={handleSubmit}>
-                        {/* Expense Name */}
-                        <div className="mb-3">
-                            <label className="form-label text-muted">
-                                Expense Name
-                            </label>
-                            <div
-                                style={inputWrapperStyle("name")}
-                                onFocus={() => setFocusedField("name")}
-                                onBlur={() => setFocusedField(null)}
-                            >
-                                <input
-                                    type="text"
-                                    className="form-control form-control-lg"
-                                    name="name"
-                                    onChange={handleChange}
-                                    required
-                                    style={inputStyle}
-                                />
+                        {["name", "amount", "date", "description"].map((field) => (
+                            <div className="mb-3" key={field}>
+                                <label className="form-label text-muted">
+                                    {field === "name"
+                                        ? "Expense Name"
+                                        : field === "amount"
+                                        ? "Amount (₹)"
+                                        : field === "date"
+                                        ? "Date"
+                                        : "Description (Optional)"}
+                                </label>
+                                <div
+                                    style={inputWrapperStyle(field)}
+                                    onFocus={() => setFocusedField(field)}
+                                    onBlur={() => setFocusedField(null)}
+                                >
+                                    {field === "description" ? (
+                                        <textarea
+                                            name={field}
+                                            rows="3"
+                                            onChange={handleChange}
+                                            style={inputStyle}
+                                        />
+                                    ) : (
+                                        <input
+                                            type={field === "amount" ? "number" : field === "date" ? "date" : "text"}
+                                            name={field}
+                                            onChange={handleChange}
+                                            required={field !== "description"}
+                                            style={inputStyle}
+                                        />
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        ))}
 
-                        {/* Amount */}
-                        <div className="mb-3">
-                            <label className="form-label text-muted">
-                                Amount (₹)
-                            </label>
-                            <div
-                                style={inputWrapperStyle("amount")}
-                                onFocus={() => setFocusedField("amount")}
-                                onBlur={() => setFocusedField(null)}
-                            >
-                                <input
-                                    type="number"
-                                    className="form-control form-control-lg"
-                                    name="amount"
-                                    onChange={handleChange}
-                                    required
-                                    style={inputStyle}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Date */}
-                        <div className="mb-3">
-                            <label className="form-label text-muted">
-                                Date
-                            </label>
-                            <div
-                                style={inputWrapperStyle("date")}
-                                onFocus={() => setFocusedField("date")}
-                                onBlur={() => setFocusedField(null)}
-                            >
-                                <input
-                                    type="date"
-                                    className="form-control form-control-lg"
-                                    name="date"
-                                    onChange={handleChange}
-                                    required
-                                    style={inputStyle}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Description */}
-                        <div className="mb-4">
-                            <label className="form-label text-muted">
-                                Description (Optional)
-                            </label>
-                            <div
-                                style={inputWrapperStyle("description")}
-                                onFocus={() =>
-                                    setFocusedField("description")
-                                }
-                                onBlur={() => setFocusedField(null)}
-                            >
-                                <textarea
-                                    className="form-control"
-                                    name="description"
-                                    onChange={handleChange}
-                                    rows="3"
-                                    style={inputStyle}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Buttons */}
                         <div className="d-grid gap-2">
                             <button
                                 type="submit"
                                 className="btn btn-lg"
-                                style={{
-                                    backgroundColor: primaryColor,
-                                    color: "white",
-                                }}
+                                style={{ ...buttonStyle, backgroundColor: colors.primary, color: "white" }}
                             >
                                 Save Transaction
                             </button>
 
                             <Link
                                 to="/dashboard"
-                                className="btn btn-outline-secondary btn-lg"
+                                className="btn btn-lg"
+                                style={{ ...buttonStyle, background: "#E5E7EB", color: "#111" }}
                             >
                                 Cancel
                             </Link>
