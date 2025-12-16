@@ -1,101 +1,80 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
-import ShowIcon from '../assets/icons/show.png'; 
-import HideIcon from '../assets/icons/hide.png'; 
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
-    const [credentials, setCredentials] = useState({ username: '', password: '' });
-    const [error, setError] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const { login } = useAuth(); 
     const navigate = useNavigate();
-    const { login } = useAuth();
     const primaryColor = "#00796B";
-    const inputBorderStyle = { border: '1px solid #000' };
-
-    const handleChange = (e) => {
-        setCredentials({ ...credentials, [e.target.name]: e.target.value });
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
         try {
-            const response = await axios.post('/api/user/login', credentials);
-            login(response.data.token, response.data.username); 
-            navigate('/dashboard'); 
+            const res = await axios.post("/api/user/login", { username, password });
+            const token = res.data.accessToken; 
+            login(token); 
+            navigate("/dashboard");
         } catch (err) {
-            console.error("Login failed:", err);
-            setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+            alert("Login failed: " + (err.response?.data?.message || "Invalid Credentials"));
         }
     };
 
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
-
     return (
-        <div className="container d-flex justify-content-center align-items-center min-vh-100 p-3 p-md-5">
-            <div className="card shadow-lg p-4 w-100" style={{ maxWidth: '400px' }}>
-                <h2 className="text-center mb-4" style={{ color: primaryColor }}>Login to Flow Finance</h2>
-                {error && <div className="alert alert-danger">{error}</div>}
+        <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light p-3">
+            <div
+                className="card shadow-lg p-5 w-100"
+                style={{ maxWidth: "450px", borderRadius: "8px" }}
+            >
+                <div
+                    style={{
+                        fontSize: "3rem",
+                        color: primaryColor,
+                        textAlign: "center",
+                        marginBottom: "15px",
+                    }}
+                >
+                    📈
+                </div>
+                <h2 className="text-center mb-4 text-dark">Flow Finance Login</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
-                        <label className="form-label">Username</label>
+                        <label className="form-label text-muted">Username</label>
                         <input
-                            type="text" 
-                            className="form-control"
-                            name="username"
-                            value={credentials.username}
-                            onChange={handleChange}
+                            type="text"
+                            className="form-control form-control-lg"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                             required
-                            style={inputBorderStyle} 
                         />
                     </div>
-                    
-                    <div className="mb-3">
-                        <label className="form-label">Password</label>
-                        <div className="input-group">
-                            <input
-                                type={showPassword ? "text" : "password"} 
-                                className="form-control"
-                                name="password"
-                                value={credentials.password}
-                                onChange={handleChange}
-                                required
-                                style={{ ...inputBorderStyle, borderRight: showPassword ? inputBorderStyle.border : 'none' }}
-                            />
-                            <button
-                                type="button"
-                                className="btn btn-light d-flex align-items-center justify-content-center"
-                                onClick={togglePasswordVisibility}
-                                style={{ 
-                                    border: inputBorderStyle.border, 
-                                    borderLeft: 'none',
-                                    backgroundColor: '#fff', 
-                                    width: '40px', 
-                                    height: '38px', 
-                                    padding: '0' 
-                                }}
-                                title={showPassword ? "Hide password" : "Show password"}
-                            >
-                                <img 
-                                    src={showPassword ? HideIcon : ShowIcon} 
-                                    alt={showPassword ? "Hide" : "Show"} 
-                                    style={{ width: '20px', height: '20px', border: 'none' }} 
-                                />
-                            </button>
-                        </div>
+                    <div className="mb-4">
+                        <label className="form-label text-muted">Password</label>
+                        <input
+                            type="password"
+                            className="form-control form-control-lg"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
                     </div>
-
-                    <button type="submit" className="btn w-100 mt-2 text-white" style={{ backgroundColor: primaryColor }}>
-                        Login
-                    </button>
+                    <div className="d-grid">
+                        <button
+                            type="submit"
+                            className="btn btn-lg"
+                            style={{ backgroundColor: primaryColor, color: "white" }}
+                        >
+                            Sign In
+                        </button>
+                    </div>
                 </form>
-
-                <p className="text-center mt-3">
-                    Don't have an account? <Link to="/register" style={{ color: primaryColor }}>Register here</Link>
+                <p className="text-center mt-4 text-muted">
+                    New user?{" "}
+                    <Link to="/register" style={{ color: primaryColor }}>
+                        Register here
+                    </Link>
                 </p>
             </div>
         </div>
