@@ -1,65 +1,51 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import Navbar from './Navbar';
 
 const Dashboard = () => {
-    const { ProtectedRoute } = useAuth();
-    const colors = { primary: "#00796B", bg: "#F4F7F8", card: "#FFFFFFF0", shadow: "0 10px 25px rgba(0,0,0,0.08)" };
+    const colors = { primary: "#00BFA6", bg: "#F0F2F5" };
 
     return (
-        <ProtectedRoute>
-            <div
-                className="d-flex justify-content-center align-items-center min-vh-100"
-                style={{ background: colors.bg }}
-            >
-                <div
-                    className="card p-5 text-center"
-                    style={{
-                        borderRadius: "18px",
-                        background: colors.card,
-                        boxShadow: colors.shadow,
-                        maxWidth: "700px",
-                        width: "100%",
-                    }}
-                >
-                    <div style={{ fontSize: "4rem", color: colors.primary, marginBottom: "20px" }}>💰</div>
-                    <h1 className="mb-3 fw-bold text-dark">Welcome to Flow Finance</h1>
-                    <p className="mb-5 text-muted lead">
-                        Your central hub for tracking and managing your personal expenses efficiently.
+        <>
+            <Navbar />
+            <div style={{
+                background: colors.bg,
+                minHeight: '100vh',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '3rem'
+            }}>
+                <div style={{ maxWidth: '800px', width: '100%', textAlign: 'center' }}>
+                    <h1 style={{ fontSize: '3rem', fontWeight: 700, color: colors.primary, marginBottom: '1rem' }}>💰 Flow Finance</h1>
+                    <p style={{ fontSize: '1.2rem', color: '#555', marginBottom: '2rem' }}>
+                        Track your personal expenses in a clean and modern way.
                     </p>
-
-                    <div className="d-flex flex-wrap justify-content-center gap-3">
-                        <Link
-                            to="/add-expense"
-                            className="btn btn-lg"
-                            style={{
-                                backgroundColor: colors.primary,
-                                color: "white",
-                                borderRadius: "999px",
-                                boxShadow: "0 8px 20px rgba(0,121,107,0.35)",
-                                padding: "12px 30px",
-                                border: "none",
-                            }}
-                        >
-                            ➕ Add New Expense
-                        </Link>
-                        <Link
-                            to="/expenses"
-                            className="btn btn-lg"
-                            style={{
-                                background: "#E5E7EB",
-                                color: "#111",
-                                borderRadius: "999px",
-                                padding: "12px 30px",
-                                border: "none",
-                            }}
-                        >
-                            📊 View Records
-                        </Link>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <Link to="/add-expense" style={{
+                            padding: '1rem 2rem',
+                            borderRadius: '999px',
+                            background: colors.primary,
+                            color: '#fff',
+                            fontWeight: 500,
+                            fontSize: '1rem',
+                            boxShadow: '0 8px 20px rgba(0,191,166,0.35)',
+                            transition: '0.2s',
+                            textDecoration: 'none'
+                        }}>➕ Add New Expense</Link>
+                        <Link to="/expenses" style={{
+                            padding: '1rem 2rem',
+                            borderRadius: '999px',
+                            background: '#E0E5EC',
+                            color: '#111',
+                            fontWeight: 500,
+                            fontSize: '1rem',
+                            textDecoration: 'none'
+                        }}>📊 View Records</Link>
                     </div>
                 </div>
             </div>
-        </ProtectedRoute>
+        </>
     );
 };
 

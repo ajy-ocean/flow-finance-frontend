@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Navbar from './Navbar';
 
 const AddExpense = () => {
     const [formData, setFormData] = useState({ name: '', amount: '', date: '', description: '' });
@@ -10,15 +11,8 @@ const AddExpense = () => {
     const location = useLocation();
     const { ProtectedRoute } = useAuth();
 
-    const colors = {
-        primary: '#00796B',
-        bg: '#F4F7F8',
-        card: '#FFFFFFF0',
-        shadow: '0 10px 25px rgba(0,0,0,0.08)',
-        focus: '0 0 0 0.25rem rgba(0,121,107,0.25)',
-    };
+    const colors = { primary: '#00BFA6', bg: '#F0F2F5' };
 
-    // Check if editing
     const queryParams = new URLSearchParams(location.search);
     const id = queryParams.get('id');
 
@@ -35,87 +29,50 @@ const AddExpense = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            if (id) {
-                await axios.put(`/api/expenses/${id}`, formData);
-                alert('Expense updated successfully!');
-            } else {
-                await axios.post('/api/expenses', formData);
-                alert('Expense recorded successfully!');
-            }
+            if (id) await axios.put(`/api/expenses/${id}`, formData);
+            else await axios.post('/api/expenses', formData);
             navigate('/expenses');
-        } catch (err) {
-            alert('Error: ' + (err.response?.data || 'Something went wrong'));
+        } catch {
+            alert('Something went wrong');
         }
     };
 
-    const inputWrapperStyle = (field) => ({
+    const inputStyle = (field) => ({
         borderRadius: '12px',
-        boxShadow: focusedField === field ? colors.focus : 'none',
-        transition: '0.2s ease',
-        marginBottom: '10px',
-    });
-
-    const inputStyle = {
-        border: '2px solid #111',
-        borderRadius: '12px',
+        border: '1px solid #ccc',
         padding: '12px',
         width: '100%',
-        boxSizing: 'border-box',
-    };
+        marginBottom: '15px',
+        transition: '0.3s',
+        outline: 'none',
+        boxShadow: focusedField === field ? '0 0 8px rgba(0,191,166,0.35)' : '0 2px 8px rgba(0,0,0,0.05)'
+    });
 
     const buttonStyle = {
         borderRadius: '999px',
-        padding: '12px',
+        padding: '12px 25px',
         border: 'none',
-        boxShadow: '0 6px 18px rgba(0,0,0,0.2)',
+        backgroundColor: colors.primary,
+        color: '#fff',
+        fontWeight: 500,
+        cursor: 'pointer',
+        transition: '0.2s',
+        boxShadow: '0 6px 18px rgba(0,191,166,0.35)'
     };
 
     return (
         <ProtectedRoute>
-            <div className="d-flex justify-content-center align-items-center min-vh-100 p-3" style={{ background: colors.bg }}>
-                <div className="card p-4 w-100" style={{ maxWidth: '600px', borderRadius: '18px', background: colors.card, boxShadow: colors.shadow, border: 'none' }}>
-                    <h2 className="text-center mb-4 text-dark">{id ? 'Edit Expense' : 'Record New Expense'}</h2>
+            <Navbar />
+            <div style={{ background: colors.bg, minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '3rem' }}>
+                <div style={{ maxWidth: '600px', width: '100%', background: '#fff', borderRadius: '20px', boxShadow: '0 12px 24px rgba(0,0,0,0.08)', padding: '2rem' }}>
+                    <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: '#00BFA6' }}>{id ? 'Edit Expense' : 'Record New Expense'}</h2>
                     <form onSubmit={handleSubmit}>
-                        {['name', 'amount', 'date', 'description'].map((field) => (
-                            <div className="mb-3" key={field}>
-                                <label className="form-label text-muted">
-                                    {field === 'name' ? 'Expense Name' : field === 'amount' ? 'Amount (₹)' : field === 'date' ? 'Date' : 'Description (Optional)'}
-                                </label>
-                                <div
-                                    style={inputWrapperStyle(field)}
-                                    onFocus={() => setFocusedField(field)}
-                                    onBlur={() => setFocusedField(null)}
-                                >
-                                    {field === 'description' ? (
-                                        <textarea
-                                            name={field}
-                                            rows="3"
-                                            value={formData[field]}
-                                            onChange={handleChange}
-                                            style={inputStyle}
-                                        />
-                                    ) : (
-                                        <input
-                                            type={field === 'amount' ? 'number' : field === 'date' ? 'date' : 'text'}
-                                            name={field}
-                                            value={formData[field]}
-                                            onChange={handleChange}
-                                            required={field !== 'description'}
-                                            style={inputStyle}
-                                        />
-                                    )}
-                                </div>
-                            </div>
+                        {['name','amount','date','description'].map(field => (
+                            field === 'description' ? 
+                            <textarea key={field} rows="3" name={field} value={formData[field]} onChange={handleChange} placeholder="Description (optional)" style={inputStyle(field)} onFocus={() => setFocusedField(field)} onBlur={() => setFocusedField(null)} /> :
+                            <input key={field} type={field==='amount'?'number':field==='date'?'date':'text'} name={field} value={formData[field]} onChange={handleChange} placeholder={field==='name'?'Expense Name':field==='amount'?'Amount':'Date'} style={inputStyle(field)} required onFocus={() => setFocusedField(field)} onBlur={() => setFocusedField(null)} />
                         ))}
-
-                        <div className="d-grid gap-2">
-                            <button type="submit" className="btn btn-lg" style={{ ...buttonStyle, backgroundColor: colors.primary, color: 'white' }}>
-                                {id ? 'Update Transaction' : 'Save Transaction'}
-                            </button>
-                            <Link to="/expenses" className="btn btn-lg" style={{ ...buttonStyle, background: '#E5E7EB', color: '#111' }}>
-                                Cancel
-                            </Link>
-                        </div>
+                        <button type="submit" style={buttonStyle}>{id ? 'Update Transaction' : 'Save Transaction'}</button>
                     </form>
                 </div>
             </div>

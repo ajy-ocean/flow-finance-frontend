@@ -1,113 +1,43 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import ShowIcon from "../assets/icons/show.png";
-import HideIcon from "../assets/icons/hide.png";
+import React,{useState} from 'react';
+import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
-    const [formData, setFormData] = useState({ username: "", password: "", email: "", fullName: "" });
-    const [showPassword, setShowPassword] = useState(false);
-    const [passwordFocused, setPasswordFocused] = useState(false);
-
+    const [formData,setFormData]=useState({username:'',password:'',email:'',fullName:''});
+    const [showPassword,setShowPassword]=useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
+    const colors={ primary:'#00BFA6', bg:'#F0F2F5', card:'#fff'};
 
-    const colors = {
-        primary: "#00796B",
-        bg: "#F4F7F8",
-        card: "#FFFFFFF0",
-        shadow: "0 10px 25px rgba(0,0,0,0.08)",
-        focus: "0 0 0 0.25rem rgba(13,110,253,0.25)"
-    };
-
-    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-    const handleSubmit = async (e) => {
+    const handleChange=e=>setFormData({...formData,[e.target.name]:e.target.value});
+    const handleSubmit=async e=>{
         e.preventDefault();
         try {
-            const res = await axios.post("/api/user/register", formData);
+            const res=await axios.post('/api/user/register',formData);
             login(res.data.accessToken);
-            navigate("/dashboard");
-        } catch (err) {
-            alert("Registration failed: " + (err.response?.data?.message || "Error"));
-        }
+            navigate('/dashboard');
+        } catch { alert('Registration failed'); }
     };
 
-    const inputWrapperStyle = (focused) => ({
-        borderRadius: "12px",
-        boxShadow: focused ? colors.focus : "none",
-        transition: "0.2s ease",
-        marginBottom: "15px",
-    });
-
-    const inputStyle = {
-        border: "2px solid #111",
-        borderRadius: "12px",
-        padding: "12px",
-        width: "100%",
-        boxSizing: "border-box",
-    };
-
-    const buttonStyle = {
-        borderRadius: "999px",
-        padding: "12px",
-        border: "none",
-        boxShadow: "0 6px 18px rgba(0,0,0,0.2)",
-        backgroundColor: colors.primary,
-        color: "white",
-        fontSize: "16px",
-    };
+    const inputStyle={ borderRadius:'12px', border:'1px solid #ccc', padding:'12px', width:'100%', marginBottom:'15px', outline:'none', boxShadow:'0 2px 8px rgba(0,0,0,0.05)'};
+    const buttonStyle={ borderRadius:'999px', padding:'12px 25px', border:'none', backgroundColor:colors.primary, color:'#fff', fontWeight:500, cursor:'pointer', boxShadow:'0 6px 18px rgba(0,191,166,0.35)'};
 
     return (
-        <div style={{ background: colors.bg, minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
-            <div style={{ maxWidth: "450px", width: "100%", background: colors.card, boxShadow: colors.shadow, borderRadius: "18px", padding: "40px" }}>
-                <div style={{ fontSize: "3rem", color: colors.primary, textAlign: "center", marginBottom: "20px" }}>📝</div>
-                <h2 style={{ textAlign: "center", marginBottom: "30px", color: "#111" }}>Create Flow Finance Account</h2>
-
+        <div style={{ background: colors.bg, minHeight:'100vh', display:'flex', justifyContent:'center', alignItems:'center', padding:'20px' }}>
+            <div style={{ maxWidth:'450px', width:'100%', background:colors.card, borderRadius:'20px', padding:'3rem', boxShadow:'0 12px 24px rgba(0,0,0,0.08)' }}>
+                <h2 style={{ textAlign:'center', color:colors.primary, marginBottom:'2rem' }}>Create Account</h2>
                 <form onSubmit={handleSubmit}>
-                    {["fullName", "email", "username"].map((field) => (
-                        <div style={inputWrapperStyle(false)} key={field}>
-                            <input
-                                type={field === "email" ? "email" : "text"}
-                                placeholder={field === "fullName" ? "Full Name" : field.charAt(0).toUpperCase() + field.slice(1)}
-                                name={field}
-                                onChange={handleChange}
-                                required
-                                style={inputStyle}
-                            />
-                        </div>
+                    {['fullName','email','username'].map(field=>(
+                        <input key={field} type={field==='email'?'email':'text'} name={field} placeholder={field==='fullName'?'Full Name':field.charAt(0).toUpperCase()+field.slice(1)} onChange={handleChange} required style={inputStyle}/>
                     ))}
-
-                    <div style={inputWrapperStyle(passwordFocused)}>
-                        <div style={{ display: "flex", borderRadius: "12px", overflow: "hidden", border: "2px solid #111" }}>
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                placeholder="Password"
-                                name="password"
-                                onChange={handleChange}
-                                onFocus={() => setPasswordFocused(true)}
-                                onBlur={() => setPasswordFocused(false)}
-                                required
-                                style={{ flex: 1, border: "none", padding: "12px", outline: "none" }}
-                            />
-                            <span
-                                onClick={() => setShowPassword(!showPassword)}
-                                style={{ cursor: "pointer", background: "#E5E7EB", padding: "0 12px", display: "flex", alignItems: "center" }}
-                            >
-                                <img src={showPassword ? HideIcon : ShowIcon} alt="toggle" style={{ width: "22px", height: "22px", pointerEvents: "none" }} />
-                            </span>
-                        </div>
+                    <div style={{ position:'relative' }}>
+                        <input type={showPassword?'text':'password'} name="password" placeholder="Password" onChange={handleChange} required style={inputStyle}/>
+                        <span onClick={()=>setShowPassword(!showPassword)} style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', cursor:'pointer', color:'#888' }}>{showPassword?'Hide':'Show'}</span>
                     </div>
-
-                    <div style={{ display: "grid", marginTop: "20px" }}>
-                        <button type="submit" style={buttonStyle}>Sign Up</button>
-                    </div>
+                    <button type="submit" style={buttonStyle}>Sign Up</button>
                 </form>
-
-                <p style={{ textAlign: "center", marginTop: "20px", color: "#6B7280" }}>
-                    Already have an account? <Link to="/" style={{ color: colors.primary }}>Sign In</Link>
-                </p>
+                <p style={{ textAlign:'center', marginTop:'1rem', color:'#555' }}>Already have an account? <Link to="/" style={{ color: colors.primary }}>Sign In</Link></p>
             </div>
         </div>
     );
