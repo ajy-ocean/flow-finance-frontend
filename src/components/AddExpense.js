@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const AddExpense = () => {
@@ -14,9 +14,6 @@ const AddExpense = () => {
 
     const navigate = useNavigate();
     const { ProtectedRoute } = useAuth();
-    const location = useLocation();
-    const params = new URLSearchParams(location.search);
-    const expenseId = params.get("id"); // check if we are editing
 
     const colors = {
         primary: "#00796B",
@@ -26,40 +23,20 @@ const AddExpense = () => {
         focus: "0 0 0 0.25rem rgba(13,110,253,0.25)",
     };
 
-    useEffect(() => {
-        if (expenseId) fetchExpense();
-    }, [expenseId]);
-
-    const fetchExpense = async () => {
-        try {
-            const res = await axios.get(`/api/expenses/${expenseId}`);
-            setFormData({
-                name: res.data.name || "",
-                amount: res.data.amount || "",
-                date: res.data.date ? res.data.date.split("T")[0] : "",
-                description: res.data.description || "",
-            });
-        } catch (err) {
-            alert("Failed to load expense data.");
-        }
-    };
-
     const handleChange = (e) =>
         setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            if (expenseId) {
-                await axios.put(`/api/expenses/${expenseId}`, formData);
-                alert("Expense updated successfully!");
-            } else {
-                await axios.post("/api/expenses", formData);
-                alert("Expense recorded successfully!");
-            }
+            await axios.post("/api/expenses", formData);
+            alert("Expense recorded successfully!");
             navigate("/expenses");
         } catch (err) {
-            alert("Error saving expense: " + (err.response?.data || "Error"));
+            alert(
+                "Error recording expense: " +
+                    (err.response?.data || "Error")
+            );
         }
     };
 
@@ -102,7 +79,7 @@ const AddExpense = () => {
                     }}
                 >
                     <h2 className="text-center mb-4 text-dark">
-                        {expenseId ? "Edit Expense" : "Record New Expense"}
+                        Record New Expense
                     </h2>
 
                     <form onSubmit={handleSubmit}>
@@ -127,7 +104,6 @@ const AddExpense = () => {
                                             name={field}
                                             rows="3"
                                             onChange={handleChange}
-                                            value={formData[field]}
                                             style={inputStyle}
                                         />
                                     ) : (
@@ -136,7 +112,6 @@ const AddExpense = () => {
                                             name={field}
                                             onChange={handleChange}
                                             required={field !== "description"}
-                                            value={formData[field]}
                                             style={inputStyle}
                                         />
                                     )}
@@ -150,11 +125,11 @@ const AddExpense = () => {
                                 className="btn btn-lg"
                                 style={{ ...buttonStyle, backgroundColor: colors.primary, color: "white" }}
                             >
-                                {expenseId ? "Update Expense" : "Save Transaction"}
+                                Save Transaction
                             </button>
 
                             <Link
-                                to="/expenses"
+                                to="/dashboard"
                                 className="btn btn-lg"
                                 style={{ ...buttonStyle, background: "#E5E7EB", color: "#111" }}
                             >
