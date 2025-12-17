@@ -1,111 +1,87 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";
 import { useAuth } from "../context/AuthContext";
 
 const AddExpense = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    amount: "",
-    date: "",
-    description: "",
-  });
-
   const { ProtectedRoute } = useAuth();
   const navigate = useNavigate();
+  const [form, setForm] = useState({ name: "", amount: "", date: "", description: "" });
 
   const colors = {
-    bg: "#0F1115",
-    card: "#161A20",
-    green: "#00E676",
-    text: "#EDEDED",
-    border: "#2A2F3A",
+    primary: "#4CAF50",
+    bg: "#F9FAFB",
+    card: "#FFFFFF",
+    border: "#E5E7EB",
+    text: "#111827",
   };
 
-  const inputStyle = {
-    width: "100%",
-    padding: "14px",
-    background: colors.bg,
-    border: `1px solid ${colors.border}`,
-    borderRadius: "14px",
-    color: colors.text,
-    outline: "none",
-    marginBottom: "16px",
-  };
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post("/api/expenses", formData);
-    navigate("/expenses");
+    try {
+      await axios.post("/api/expenses", form);
+      navigate("/expenses");
+    } catch {
+      alert("Error adding expense");
+    }
   };
 
   return (
     <ProtectedRoute>
-      <Navbar />
-
-      <div
-        style={{
-          background: colors.bg,
-          minHeight: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            background: colors.card,
-            padding: "32px",
-            borderRadius: "20px",
-            width: "400px",
-            border: `1px solid ${colors.border}`,
-          }}
-        >
-          <h2 style={{ color: colors.green, marginBottom: "20px" }}>
-            Add Expense
-          </h2>
-
-          {["name", "amount", "date"].map((f) => (
-            <input
-              key={f}
-              type={f === "amount" ? "number" : f === "date" ? "date" : "text"}
-              placeholder={f.toUpperCase()}
-              style={inputStyle}
-              onFocus={(e) =>
-                (e.target.style.boxShadow = "0 0 0 2px rgba(0,230,118,0.5)")
-              }
-              onBlur={(e) => (e.target.style.boxShadow = "none")}
-              onChange={(e) =>
-                setFormData({ ...formData, [f]: e.target.value })
-              }
-              required
-            />
-          ))}
-
-          <textarea
-            placeholder="Description"
-            rows="3"
-            style={inputStyle}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
+      <div style={{ background: colors.bg, minHeight: "100vh", padding: "40px 20px", fontFamily: "Arial, sans-serif" }}>
+        <h2 style={{ color: colors.text, marginBottom: "20px" }}>Add New Expense</h2>
+        <form onSubmit={handleSubmit} style={{
+          background: colors.card,
+          padding: "20px",
+          borderRadius: "16px",
+          border: `1px solid ${colors.border}`,
+          maxWidth: "500px"
+        }}>
+          <input
+            type="text"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Expense Name"
+            required
+            style={{ width: "100%", marginBottom: "10px", padding: "10px", borderRadius: "12px", border: `1px solid ${colors.border}` }}
           />
-
-          <button
-            style={{
-              width: "100%",
-              padding: "14px",
-              borderRadius: "999px",
-              background: colors.green,
-              border: "none",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            Save
-          </button>
+          <input
+            type="number"
+            name="amount"
+            value={form.amount}
+            onChange={handleChange}
+            placeholder="Amount"
+            required
+            style={{ width: "100%", marginBottom: "10px", padding: "10px", borderRadius: "12px", border: `1px solid ${colors.border}` }}
+          />
+          <input
+            type="date"
+            name="date"
+            value={form.date}
+            onChange={handleChange}
+            required
+            style={{ width: "100%", marginBottom: "10px", padding: "10px", borderRadius: "12px", border: `1px solid ${colors.border}` }}
+          />
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Description (optional)"
+            rows="3"
+            style={{ width: "100%", marginBottom: "10px", padding: "10px", borderRadius: "12px", border: `1px solid ${colors.border}` }}
+          />
+          <button type="submit" style={{
+            padding: "10px 22px",
+            borderRadius: "999px",
+            border: "none",
+            backgroundColor: colors.primary,
+            color: "#fff",
+            cursor: "pointer",
+            fontWeight: "500"
+          }}>Add Expense</button>
         </form>
       </div>
     </ProtectedRoute>

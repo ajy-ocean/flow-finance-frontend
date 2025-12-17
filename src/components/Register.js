@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
 import showIcon from "../assets/icons/show.png";
 import hideIcon from "../assets/icons/hide.png";
 
@@ -13,7 +11,6 @@ const Register = () => {
     username: "",
     password: "",
   });
-
   const [showPassword, setShowPassword] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
@@ -47,8 +44,14 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/api/user/register", formData);
-      login(res.data.accessToken);
+      const res = await fetch("/api/user/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Registration failed");
+      login(data.accessToken);
       navigate("/dashboard");
     } catch {
       alert("Registration failed");
@@ -75,13 +78,7 @@ const Register = () => {
           border: `1px solid ${colors.border}`,
         }}
       >
-        <h2
-          style={{
-            textAlign: "center",
-            color: colors.green,
-            marginBottom: "28px",
-          }}
-        >
+        <h2 style={{ textAlign: "center", color: colors.green, marginBottom: "28px" }}>
           Create Account
         </h2>
 
@@ -111,9 +108,7 @@ const Register = () => {
             style={{
               display: "flex",
               alignItems: "center",
-              border: `1px solid ${
-                isPasswordFocused ? colors.green : colors.border
-              }`,
+              border: `1px solid ${isPasswordFocused ? colors.green : colors.border}`,
               borderRadius: "14px",
               marginBottom: "16px",
               boxShadow: isPasswordFocused
@@ -122,8 +117,6 @@ const Register = () => {
               transition: "0.2s",
               background: colors.bg,
             }}
-            onClick={() => setIsPasswordFocused(true)}
-            onBlur={() => setIsPasswordFocused(false)}
           >
             <input
               type={showPassword ? "text" : "password"}
@@ -154,7 +147,6 @@ const Register = () => {
                 alignItems: "center",
                 cursor: "pointer",
                 borderRadius: "0 14px 14px 0",
-                background: colors.card,
                 background: colors.bg,
               }}
             >
@@ -176,19 +168,14 @@ const Register = () => {
               background: colors.green,
               border: "none",
               fontWeight: 600,
+              cursor: "pointer",
             }}
           >
             Sign Up
           </button>
         </form>
 
-        <p
-          style={{
-            textAlign: "center",
-            marginTop: "20px",
-            color: colors.muted,
-          }}
-        >
+        <p style={{ textAlign: "center", marginTop: "20px", color: colors.muted }}>
           Already have an account?{" "}
           <Link to="/" style={{ color: colors.green }}>
             Sign In

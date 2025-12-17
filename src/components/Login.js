@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
 import showIcon from "../assets/icons/show.png";
 import hideIcon from "../assets/icons/hide.png";
 
@@ -39,8 +37,14 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/api/user/login", { username, password });
-      login(res.data.accessToken);
+      const res = await fetch("/api/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Login failed");
+      login(data.accessToken);
       navigate("/dashboard");
     } catch {
       alert("Invalid credentials");
@@ -48,22 +52,28 @@ const Login = () => {
   };
 
   return (
-    <div style={{
-      background: colors.bg,
-      minHeight: "100vh",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-    }}>
-      <div style={{
-        background: colors.card,
-        padding: "36px",
-        borderRadius: "22px",
-        width: "100%",
-        maxWidth: "420px",
-        border: `1px solid ${colors.border}`,
-      }}>
-        <h2 style={{ textAlign: "center", color: colors.green, marginBottom: "28px" }}>
+    <div
+      style={{
+        background: colors.bg,
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          background: colors.card,
+          padding: "36px",
+          borderRadius: "22px",
+          width: "100%",
+          maxWidth: "420px",
+          border: `1px solid ${colors.border}`,
+        }}
+      >
+        <h2
+          style={{ textAlign: "center", color: colors.green, marginBottom: "28px" }}
+        >
           Flow Finance
         </h2>
 
@@ -86,19 +96,18 @@ const Login = () => {
             }}
           />
 
-          {/* PASSWORD (UNIFIED FIELD) */}
+          {/* PASSWORD */}
           <div
             style={{
               display: "flex",
               marginBottom: "20px",
-              border: `1px solid ${
-                isPasswordFocused ? colors.green : colors.border
-              }`,
+              border: `1px solid ${isPasswordFocused ? colors.green : colors.border}`,
               borderRadius: "14px",
               boxShadow: isPasswordFocused
                 ? "0 0 0 2px rgba(0,230,118,0.35)"
                 : "none",
               transition: "0.2s",
+              background: colors.bg,
             }}
           >
             <input
@@ -120,21 +129,17 @@ const Login = () => {
               onFocus={() => setIsPasswordFocused(true)}
               onBlur={() => setIsPasswordFocused(false)}
             />
-
             <div
               onMouseDown={(e) => e.preventDefault()}
-              onClick={() => {
-                setShowPassword(!showPassword);
-                setIsPasswordFocused(true);
-              }}
+              onClick={() => setShowPassword(!showPassword)}
               style={{
                 width: "52px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
                 cursor: "pointer",
-                background: colors.bg,
                 borderRadius: "0 14px 14px 0",
+                background: colors.bg,
               }}
             >
               <img
