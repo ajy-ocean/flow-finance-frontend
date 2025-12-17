@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -7,55 +7,46 @@ const AddExpense = () => {
   const { ProtectedRoute } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Check if we are editing an existing expense
-  const editData = location.state?.expense;
-  
+  const editItem = location.state?.expense;
+
   const [form, setForm] = useState({
-    name: editData?.name || "",
-    amount: editData?.amount || "",
-    date: editData?.date ? editData.date.split('T')[0] : "",
-    description: editData?.description || ""
+    name: editItem?.name || "",
+    amount: editItem?.amount || "",
+    date: editItem?.date ? editItem.date.split("T")[0] : "",
+    description: editItem?.description || ""
   });
 
-  const handleSubmit = async (e) => {
+  const save = async (e) => {
     e.preventDefault();
     try {
-      if (editData) {
-        // MATCHES YOUR CONTROLLER: @PutMapping("/{id}")
-        await axios.put(`/api/expenses/${editData._id || editData.id}`, form);
-        alert("Updated successfully! ✅");
+      if (editItem) {
+        // CALLS YOUR @PutMapping("/{id}")
+        await axios.put(`/api/expenses/${editItem.id || editItem._id}`, form);
       } else {
-        // MATCHES YOUR CONTROLLER: @PostMapping
+        // CALLS YOUR @PostMapping
         await axios.post("/api/expenses", form);
-        alert("Added successfully! 💰");
       }
       navigate("/expenses");
-    } catch (err) {
-      alert("Error saving data. Please check your connection.");
-    }
+    } catch { alert("Error saving! ❌"); }
   };
 
   return (
     <ProtectedRoute>
-      <div style={{ padding: "40px", display: "flex", justifyContent: "center", background: "#f0f4f8", minHeight: "100vh" }}>
-        <div style={{ background: "#fff", padding: "30px", borderRadius: "20px", width: "100%", maxWidth: "500px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", border: "2px solid #3b82f6" }}>
-          <h2 style={{ color: "#1e3a8a", textAlign: "center" }}>{editData ? "📝 Edit Expense" : "➕ Add New Expense"}</h2>
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-            <input type="text" placeholder="Item Name (e.g. Pizza 🍕)" value={form.name} required style={inputStyle} onChange={(e) => setForm({...form, name: e.target.value})} />
-            <input type="number" placeholder="Amount (₹)" value={form.amount} required style={inputStyle} onChange={(e) => setForm({...form, amount: e.target.value})} />
-            <input type="date" value={form.date} required style={inputStyle} onChange={(e) => setForm({...form, date: e.target.value})} />
-            <textarea placeholder="Description" value={form.description} style={inputStyle} onChange={(e) => setForm({...form, description: e.target.value})} />
-            <button type="submit" style={{ background: "#10b981", color: "#fff", padding: "15px", borderRadius: "10px", border: "none", fontWeight: "bold", cursor: "pointer", fontSize: "1.1rem" }}>
-              {editData ? "Update Now ✅" : "Save Expense 💵"}
-            </button>
-            <button type="button" onClick={() => navigate("/expenses")} style={{ background: "#9ca3af", color: "#fff", padding: "10px", borderRadius: "10px", border: "none", cursor: "pointer" }}>Cancel</button>
+      <div style={{ background: "#fdf2f2", minHeight: "100vh", display: "flex", justifyContent: "center", padding: "50px" }}>
+        <div style={{ background: "#fff", padding: "40px", borderRadius: "20px", border: "4px solid #10b981", width: "400px" }}>
+          <h2 style={{ textAlign: "center", color: "#065f46" }}>{editItem ? "✏️ Edit Expense" : "💰 New Expense"}</h2>
+          <form onSubmit={save} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            <input placeholder="Name" value={form.name} required style={inS} onChange={e => setForm({...form, name: e.target.value})} />
+            <input placeholder="Amount" type="number" value={form.amount} required style={inS} onChange={e => setForm({...form, amount: e.target.value})} />
+            <input type="date" value={form.date} required style={inS} onChange={e => setForm({...form, date: e.target.value})} />
+            <textarea placeholder="Note" value={form.description} style={inS} onChange={e => setForm({...form, description: e.target.value})} />
+            <button type="submit" style={{ background: "#10b981", color: "#fff", padding: "12px", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer" }}>SAVE ✅</button>
+            <button type="button" onClick={() => navigate("/expenses")} style={{ background: "#94a3b8", color: "#fff", border: "none", padding: "8px", borderRadius: "8px", cursor: "pointer" }}>Cancel</button>
           </form>
         </div>
       </div>
     </ProtectedRoute>
   );
 };
-
-const inputStyle = { padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1rem" };
+const inS = { padding: "12px", borderRadius: "8px", border: "2px solid #cbd5e1" };
 export default AddExpense;

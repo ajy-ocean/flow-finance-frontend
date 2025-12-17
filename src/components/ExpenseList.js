@@ -5,40 +5,37 @@ import { useAuth } from "../context/AuthContext";
 
 const ExpenseList = () => {
   const [expenses, setExpenses] = useState([]);
-  const { ProtectedRoute } = useAuth();
   const navigate = useNavigate();
+  const { ProtectedRoute } = useAuth();
 
-  useEffect(() => { fetchExpenses(); }, []);
+  const fetch = () => axios.get("/api/expenses").then(res => setExpenses(res.data));
+  useEffect(() => { fetch(); }, []);
 
-  const fetchExpenses = async () => {
-    try {
-      const res = await axios.get("/api/expenses");
-      setExpenses(res.data);
-    } catch { alert("Failed to load ❌"); }
-  };
-
-  const deleteItem = async (id) => {
-    if (window.confirm("Delete? 🗑️")) {
+  const del = async (id) => {
+    if (window.confirm("Delete this? 🗑️")) {
       await axios.delete(`/api/expenses/${id}`);
-      fetchExpenses();
+      fetch();
     }
   };
 
   return (
     <ProtectedRoute>
-      <div style={{ padding: "30px", background: "#f8fafc" }}>
-        <h2 style={{ color: "#1e3a8a" }}>Your Expense History 📝</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
-          {expenses.map((exp) => (
-            <div key={exp._id || exp.id} style={{ background: "#fff", padding: "20px", borderRadius: "15px", borderLeft: "8px solid #3b82f6", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontWeight: "bold", fontSize: "1.2rem" }}>{exp.name}</span>
-                <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.2rem" }}>₹{exp.amount}</span>
+      <div style={{ background: "#e0f2fe", minHeight: "100vh", padding: "40px" }}>
+        <h2 style={{ color: "#1e3a8a", textAlign: "center", marginBottom: "30px" }}>All Transactions 🧾</h2>
+        <div style={{ display: "grid", gap: "15px", maxWidth: "800px", margin: "0 auto" }}>
+          {expenses.map(exp => (
+            <div key={exp.id || exp._id} style={{
+              background: "#fff", padding: "20px", borderRadius: "15px", display: "flex", 
+              justifyContent: "space-between", border: "2px solid #3b82f6"
+            }}>
+              <div>
+                <b style={{ fontSize: "1.2rem" }}>{exp.name}</b>
+                <p style={{ margin: 0, color: "#64748b" }}>{exp.description}</p>
               </div>
-              <p style={{ color: "#64748b", margin: "10px 0" }}>{exp.description}</p>
-              <div style={{ display: "flex", gap: "10px" }}>
-                <button onClick={() => navigate("/add-expense", { state: { expense: exp } })} style={{ flex: 1, background: "#3b82f6", color: "#fff", border: "none", padding: "8px", borderRadius: "5px", cursor: "pointer" }}>Edit ✏️</button>
-                <button onClick={() => deleteItem(exp._id || exp.id)} style={{ flex: 1, background: "#fee2e2", color: "#ef4444", border: "none", padding: "8px", borderRadius: "5px", cursor: "pointer" }}>Delete 🗑️</button>
+              <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                <span style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#ef4444" }}>₹{exp.amount}</span>
+                <button onClick={() => navigate("/add-expense", { state: { expense: exp } })} style={editB}>Edit ✏️</button>
+                <button onClick={() => del(exp.id || exp._id)} style={delB}>Delete 🗑️</button>
               </div>
             </div>
           ))}
@@ -47,4 +44,6 @@ const ExpenseList = () => {
     </ProtectedRoute>
   );
 };
+const editB = { background: "#3b82f6", color: "#fff", border: "none", padding: "8px", borderRadius: "5px", cursor: "pointer" };
+const delB = { background: "#fee2e2", color: "#ef4444", border: "none", padding: "8px", borderRadius: "5px", cursor: "pointer" };
 export default ExpenseList;
