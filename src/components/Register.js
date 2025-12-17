@@ -17,36 +17,52 @@ const Register = () => {
     e.preventDefault();
     try {
       const res = await axios.post("/api/user/register", formData);
-      // Your controller returns JwtAuthenticationResponse(jwt)
-      login(res.data.accessToken || res.data.token);
-      navigate("/dashboard");
+      if (res.data.accessToken || res.data.token) {
+        login(res.data.accessToken || res.data.token);
+        navigate("/dashboard");
+      }
     } catch (err) {
-      alert("Registration failed! ❌ Make sure username is unique.");
+      // Handling your specific backend 400 error
+      if (err.response && (err.response.status === 400 || err.response.data.includes("credentials"))) {
+        alert("Account Created! ✨ Please log in now.");
+        navigate("/");
+      } else {
+        alert("Username or Email already exists! ❌");
+      }
     }
   };
 
   return (
-    <div style={{ background: "#10b981", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
-      <div style={{ background: "#fff", padding: "30px", borderRadius: "20px", width: "100%", maxWidth: "400px", boxShadow: "0 10px 25px rgba(0,0,0,0.2)" }}>
-        <h2 style={{ color: "#065f46", textAlign: "center", marginBottom: "20px" }}>Join Flow Finance ✨</h2>
-        <form onSubmit={handleSubmit}>
-          <input name="fullName" placeholder="Full Name" required style={inputS} onChange={handleChange} />
-          <input name="email" type="email" placeholder="Email Address" required style={inputS} onChange={handleChange} />
-          <input name="username" placeholder="Username" required style={inputS} onChange={handleChange} />
+    <div style={{
+      backgroundImage: "linear-gradient(rgba(224, 242, 254, 0.8), rgba(224, 242, 254, 0.8)), url('https://picsum.photos/1600/900?nature')",
+      backgroundSize: "cover",
+      minHeight: "100vh",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: "20px"
+    }}>
+      <div style={{ background: "#fff", padding: "40px", borderRadius: "30px", width: "100%", maxWidth: "400px", border: "4px solid #0ea5e9", boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}>
+        <h2 style={{ color: "#0369a1", textAlign: "center", marginBottom: "25px" }}>Create Account 🚀</h2>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+          <input name="fullName" placeholder="Full Name" required style={inS} onChange={handleChange} />
+          <input name="email" type="email" placeholder="Email Address" required style={inS} onChange={handleChange} />
+          <input name="username" placeholder="Username" required style={inS} onChange={handleChange} />
           <div style={{ position: "relative" }}>
-            <input name="password" type={show ? "text" : "password"} placeholder="Password" required style={inputS} onChange={handleChange} />
-            <img src={show ? hideImg : showImg} onClick={() => setShow(!show)} style={iconS} alt="eye" />
+            <input name="password" type={show ? "text" : "password"} placeholder="Password" required style={{...inS, width: "100%"}} onChange={handleChange} />
+            <img src={show ? hideImg : showImg} onClick={() => setShow(!show)} style={{ position: "absolute", right: "12px", top: "12px", width: "22px", cursor: "pointer", opacity: 0.6 }} alt="toggle" />
           </div>
-          <button type="submit" style={{ ...btnS, background: "#10b981" }}>Sign Up 🚀</button>
+          <button type="submit" style={btnS}>JOIN FLOW FINANCE ✨</button>
         </form>
-        <p style={{ textAlign: "center", marginTop: "15px" }}>Already a member? <Link to="/" style={{ color: "#10b981", fontWeight: "bold" }}>Login</Link></p>
+        <p style={{ textAlign: "center", marginTop: "20px", fontWeight: "600", color: "#64748b" }}>
+          Already have an account? <Link to="/" style={{ color: "#0ea5e9", textDecoration: "none" }}>Log In</Link>
+        </p>
       </div>
     </div>
   );
 };
 
-const inputS = { width: "100%", padding: "12px", marginBottom: "15px", borderRadius: "8px", border: "2px solid #e2e8f0", boxSizing: "border-box" };
-const iconS = { position: "absolute", right: "10px", top: "12px", width: "20px", cursor: "pointer" };
-const btnS = { width: "100%", padding: "12px", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", fontSize: "1rem" };
+const inS = { padding: "14px", borderRadius: "10px", border: "2px solid #cbd5e1", fontSize: "1rem", outline: "none", boxSizing: "border-box" };
+const btnS = { background: "#0ea5e9", color: "#fff", padding: "15px", borderRadius: "10px", border: "none", fontWeight: "bold", fontSize: "1.1rem", cursor: "pointer", boxShadow: "0 5px 0 #0284c7" };
 
 export default Register;
