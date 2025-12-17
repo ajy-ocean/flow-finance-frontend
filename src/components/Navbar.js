@@ -7,12 +7,13 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Don't show navbar on Login or Register
   if (["/", "/register"].includes(location.pathname)) return null;
 
   const handleLogout = () => {
-    logout();
-    navigate("/");
+    if (window.confirm("Ready to leave? 👋")) {
+      logout();
+      navigate("/");
+    }
   };
 
   return (
@@ -22,21 +23,38 @@ const Navbar = () => {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
-      boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+      boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
       position: "sticky",
       top: 0,
       zIndex: 1000
     }}>
-      <div style={{ color: "#fff", fontSize: "1.5rem", fontWeight: "900", letterSpacing: "1px" }}>
+      {/* LOGO ACTS AS HOME BUTTON */}
+      <Link to="/dashboard" style={{ 
+        color: "#fff", 
+        fontSize: "1.6rem", 
+        fontWeight: "900", 
+        letterSpacing: "1px", 
+        textDecoration: "none",
+        display: "flex",
+        alignItems: "center",
+        gap: "10px"
+      }}>
         💰 FlowFinance
-      </div>
+      </Link>
       
-      <div style={{ display: "flex", gap: "25px", alignItems: "center" }}>
-        <Link to="/dashboard" style={navLink}>Home 🏠</Link>
+      <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
         <Link to="/expenses" style={navLink}>View All 📊</Link>
-        <Link to="/add-expense" style={{...navLink, background: "rgba(255,255,255,0.2)", padding: "8px 15px", borderRadius: "8px"}}>
-          Add +
+        
+        <Link to="/add-expense" style={{
+          ...navLink, 
+          background: "#10b981", 
+          padding: "10px 20px", 
+          borderRadius: "12px",
+          boxShadow: "0 4px 0 #059669"
+        }}>
+          Add Expense +
         </Link>
+
         <button onClick={handleLogout} style={logoutBtn}>
           Logout 🚪
         </button>
@@ -48,9 +66,8 @@ const Navbar = () => {
 const navLink = {
   color: "#fff",
   textDecoration: "none",
-  fontWeight: "600",
-  fontSize: "1.1rem",
-  transition: "0.3s"
+  fontWeight: "700",
+  fontSize: "1.05rem",
 };
 
 const logoutBtn = {
@@ -58,10 +75,11 @@ const logoutBtn = {
   color: "#fff",
   border: "none",
   padding: "10px 20px",
-  borderRadius: "10px",
-  fontWeight: "700",
+  borderRadius: "12px",
+  fontWeight: "800",
   cursor: "pointer",
-  boxShadow: "0 4px 0 #be123c"
+  boxShadow: "0 4px 0 #be123c",
+  marginLeft: "10px"
 };
 
 export default Navbar;
