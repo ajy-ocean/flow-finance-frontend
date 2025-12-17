@@ -1,146 +1,136 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios"; 
+import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import showIcon from "../assets/icons/show.png";
 import hideIcon from "../assets/icons/hide.png";
+
+const styles = {
+  container: {
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "20px"
+  },
+  card: {
+    background: "rgba(255, 255, 255, 0.95)",
+    padding: "40px",
+    borderRadius: "30px",
+    width: "100%",
+    maxWidth: "400px",
+    textAlign: "center",
+    boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
+    backdropFilter: "blur(10px)"
+  },
+  title: { color: "#4F46E5", marginBottom: "10px", fontWeight: "800", fontSize: "2rem" },
+  subtitle: { color: "#6B7280", marginBottom: "30px", fontWeight: "500" },
+  input: {
+    width: "100%",
+    padding: "16px",
+    marginBottom: "15px",
+    borderRadius: "15px",
+    border: "2px solid #E5E7EB",
+    outline: "none",
+    fontSize: "1rem",
+    boxSizing: "border-box"
+  },
+  passwordWrapper: {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    marginBottom: "25px",
+  },
+  passwordInput: {
+    width: "100%",
+    padding: "16px",
+    paddingRight: "50px",
+    borderRadius: "15px",
+    border: "2px solid #E5E7EB",
+    outline: "none",
+    fontSize: "1rem",
+    boxSizing: "border-box"
+  },
+  toggleBtn: {
+    position: "absolute",
+    right: "15px",
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center"
+  },
+  icon: { width: "22px", height: "22px", opacity: "0.5" },
+  mainBtn: {
+    width: "100%",
+    padding: "16px",
+    borderRadius: "999px",
+    background: "#4F46E5",
+    color: "#fff",
+    border: "none",
+    fontWeight: "700",
+    fontSize: "1.1rem",
+    cursor: "pointer",
+    boxShadow: "0 10px 20px rgba(79, 70, 229, 0.4)",
+    transition: "0.3s"
+  },
+  footerText: { marginTop: "25px", color: "#6B7280" },
+  link: { color: "#4F46E5", fontWeight: "700", textDecoration: "none" }
+};
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  const colors = {
-    bg: "#0F1115",
-    card: "#161A20",
-    green: "#00E676",
-    text: "#EDEDED",
-    border: "#2A2F3A",
-    muted: "#9AA0A6",
-  };
-
-  const inputStyle = {
-    width: "100%",
-    padding: "14px",
-    background: colors.bg,
-    border: `1px solid ${colors.border}`,
-    borderRadius: "14px",
-    color: colors.text,
-    outline: "none",
-    fontSize: "0.95rem",
-    marginBottom: "16px",
-    transition: "0.2s",
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Changed from fetch to axios to sync with AuthContext headers
       const res = await axios.post("/api/user/login", { username, password });
-      
-      // Handle both 'accessToken' or 'token' depending on your backend response
-      const token = res.data.accessToken || res.data.token; 
-      
-      if (token) {
-        login(token);
-        navigate("/dashboard");
-      }
+      login(res.data.accessToken || res.data.token);
+      navigate("/dashboard");
     } catch (err) {
-      console.error("Login Error:", err);
-      alert(err.response?.data?.message || "Invalid credentials");
+      alert("Oops! Wrong credentials ❌");
     }
   };
 
   return (
-    <div style={{ background: colors.bg, minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
-      <div style={{ background: colors.card, padding: "36px", borderRadius: "22px", width: "100%", maxWidth: "420px", border: `1px solid ${colors.border}` }}>
-        <h2 style={{ textAlign: "center", color: colors.green, marginBottom: "28px", fontWeight: "700" }}>
-          Flow Finance
-        </h2>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h1 style={styles.title}>Welcome! 👋</h1>
+        <p style={styles.subtitle}>Manage your 💸 effectively</p>
 
         <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            required
-            style={inputStyle}
-            onChange={(e) => setUsername(e.target.value)}
-            onFocus={(e) => {
-              e.target.style.border = `1px solid ${colors.green}`;
-              e.target.style.boxShadow = "0 0 0 2px rgba(0,230,118,0.2)";
-            }}
-            onBlur={(e) => {
-              e.target.style.border = `1px solid ${colors.border}`;
-              e.target.style.boxShadow = "none";
-            }}
-          />
+          <input type="text" placeholder="Username" required style={styles.input} onChange={(e) => setUsername(e.target.value)} />
 
-          <div style={{
-              display: "flex",
-              marginBottom: "20px",
-              border: `1px solid ${isPasswordFocused ? colors.green : colors.border}`,
-              borderRadius: "14px",
-              boxShadow: isPasswordFocused ? "0 0 0 2px rgba(0,230,118,0.2)" : "none",
-              transition: "0.2s",
-              background: colors.bg,
-            }}
-          >
+          <div style={styles.passwordWrapper}>
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              value={password}
               required
-              style={{
-                flex: 1,
-                padding: "14px",
-                background: "transparent",
-                border: "none",
-                color: colors.text,
-                outline: "none",
-                fontSize: "0.95rem",
-              }}
+              style={styles.passwordInput}
               onChange={(e) => setPassword(e.target.value)}
-              onFocus={() => setIsPasswordFocused(true)}
-              onBlur={() => setIsPasswordFocused(false)}
             />
-            <div
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => setShowPassword(!showPassword)}
-              style={{ width: "52px", display: "flex", justifyContent: "center", alignItems: "center", cursor: "pointer" }}
-            >
-              <img
-                src={showPassword ? hideIcon : showIcon}
-                alt="toggle"
-                width="20"
-                style={{ filter: "brightness(0) invert(1)" }}
-              />
-            </div>
+            <button type="button" onClick={() => setShowPassword(!showPassword)} style={styles.toggleBtn}>
+              <img src={showPassword ? hideIcon : showIcon} alt="toggle" style={styles.icon} />
+            </button>
           </div>
 
-          <button
-            type="submit"
-            style={{
-              width: "100%",
-              padding: "14px",
-              borderRadius: "999px",
-              background: colors.green,
-              border: "none",
-              color: "#000",
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
+          <button 
+            type="submit" 
+            style={styles.mainBtn}
+            onMouseOver={(e) => e.target.style.transform = "translateY(-2px)"}
+            onMouseOut={(e) => e.target.style.transform = "translateY(0)"}
           >
-            Sign In
+            Let's Go! 🚀
           </button>
         </form>
 
-        <p style={{ textAlign: "center", marginTop: "20px", color: colors.muted }}>
-          New user? <Link to="/register" style={{ color: colors.green, textDecoration: "none" }}>Create account</Link>
+        <p style={styles.footerText}>
+          New here? <Link to="/register" style={styles.link}>Join now!</Link>
         </p>
       </div>
     </div>

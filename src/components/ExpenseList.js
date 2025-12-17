@@ -5,268 +5,59 @@ import { useAuth } from "../context/AuthContext";
 
 const ExpenseList = () => {
   const [expenses, setExpenses] = useState([]);
-  const [editId, setEditId] = useState(null);
-  const [editForm, setEditForm] = useState({});
   const { ProtectedRoute } = useAuth();
 
-  // Soft minimalistic color palette
-  const colors = {
-    primary: "#4CAF50",      // green for buttons and accents
-    bg: "#F9FAFB",           // light grey background
-    card: "#FFFFFF",          // white cards
-    text: "#111827",          // dark text
-    muted: "#6B7280",         // muted text
-    border: "#E5E7EB",        // card borders
-    hover: "#F3F4F6",         // hover background
-  };
-
-  useEffect(() => {
-    fetchExpenses();
-  }, []);
+  useEffect(() => { fetchExpenses(); }, []);
 
   const fetchExpenses = async () => {
     try {
       const res = await axios.get("/api/expenses");
-      const sorted = res.data.sort(
-        (a, b) => new Date(b.date) - new Date(a.date)
-      );
-      setExpenses(sorted);
-    } catch {
-      alert("Error fetching expenses");
-    }
+      setExpenses(res.data.sort((a, b) => new Date(b.date) - new Date(a.date)));
+    } catch { alert("Session expired. Please login again."); }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this expense?")) {
-      try {
-        await axios.delete(`/api/expenses/${id}`);
-        fetchExpenses();
-      } catch {
-        alert("Error deleting expense");
-      }
-    }
-  };
-
-  const handleEdit = (expense) => {
-    const formattedDate = expense.date.split("T")[0]; // yyyy-mm-dd
-    setEditId(expense.id || expense._id);
-    setEditForm({ ...expense, date: formattedDate });
-  };
-
-  const handleEditChange = (e) =>
-    setEditForm({ ...editForm, [e.target.name]: e.target.value });
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.put(`/api/expenses/${editId}`, editForm);
-      setEditId(null);
+  const deleteExp = async (id) => {
+    if (window.confirm("Delete this transaction? 🗑️")) {
+      await axios.delete(`/api/expenses/${id}`);
       fetchExpenses();
-    } catch {
-      alert("Error updating expense");
     }
   };
 
   return (
     <ProtectedRoute>
-      <div
-        style={{
-          background: colors.bg,
-          minHeight: "100vh",
-          padding: "40px 20px",
-          fontFamily: "Arial, sans-serif",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            marginBottom: "30px",
-          }}
-        >
-          <h2 style={{ color: colors.text }}>Transaction Records</h2>
-          <Link
-            to="/add-expense"
-            style={{
-              backgroundColor: colors.primary,
-              color: "#fff",
-              borderRadius: "999px",
-              padding: "10px 22px",
-              textDecoration: "none",
-              fontWeight: "500",
-            }}
-          >
-            ➕ Add New
+      <div style={{ padding: "40px 20px", maxWidth: "1000px", margin: "0 auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" }}>
+          <h2 style={{ fontSize: "2rem", fontWeight: "800" }}>💸 Transactions</h2>
+          <Link to="/add-expense" style={{
+            background: "linear-gradient(to right, #6366F1, #A855F7)",
+            color: "#fff", borderRadius: "999px", padding: "12px 30px",
+            textDecoration: "none", fontWeight: "700", boxShadow: "0 10px 20px rgba(99, 102, 241, 0.4)"
+          }}>
+            ✨ Add New
           </Link>
         </div>
 
-        {expenses.length === 0 ? (
-          <div style={{ textAlign: "center", marginTop: "50px", color: colors.muted }}>
-            No expenses recorded yet.
-          </div>
-        ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-              gap: "20px",
-            }}
-          >
-            {expenses.map((expense) => {
-              const expenseId = expense.id || expense._id;
-              return (
-                <div
-                  key={expenseId}
-                  style={{
-                    borderRadius: "16px",
-                    background: colors.card,
-                    padding: "20px",
-                    border: `1px solid ${colors.border}`,
-                    transition: "0.2s",
-                  }}
-                >
-                  {editId === expenseId ? (
-                    <form onSubmit={handleUpdate}>
-                      <input
-                        type="text"
-                        name="name"
-                        value={editForm.name || ""}
-                        onChange={handleEditChange}
-                        placeholder="Expense Name"
-                        style={{
-                          width: "100%",
-                          marginBottom: "10px",
-                          padding: "10px",
-                          borderRadius: "12px",
-                          border: `1px solid ${colors.border}`,
-                        }}
-                        required
-                      />
-                      <input
-                        type="number"
-                        name="amount"
-                        value={editForm.amount || ""}
-                        onChange={handleEditChange}
-                        placeholder="Amount"
-                        style={{
-                          width: "100%",
-                          marginBottom: "10px",
-                          padding: "10px",
-                          borderRadius: "12px",
-                          border: `1px solid ${colors.border}`,
-                        }}
-                        required
-                      />
-                      <input
-                        type="date"
-                        name="date"
-                        value={editForm.date || ""}
-                        onChange={handleEditChange}
-                        style={{
-                          width: "100%",
-                          marginBottom: "10px",
-                          padding: "10px",
-                          borderRadius: "12px",
-                          border: `1px solid ${colors.border}`,
-                        }}
-                        required
-                      />
-                      <textarea
-                        name="description"
-                        value={editForm.description || ""}
-                        onChange={handleEditChange}
-                        rows="2"
-                        placeholder="Description (optional)"
-                        style={{
-                          width: "100%",
-                          marginBottom: "10px",
-                          padding: "10px",
-                          borderRadius: "12px",
-                          border: `1px solid ${colors.border}`,
-                        }}
-                      />
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-                        <button
-                          type="submit"
-                          style={{
-                            padding: "8px 18px",
-                            borderRadius: "999px",
-                            border: "none",
-                            backgroundColor: colors.primary,
-                            color: "#fff",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Save
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setEditId(null)}
-                          style={{
-                            padding: "8px 18px",
-                            borderRadius: "999px",
-                            border: `1px solid ${colors.border}`,
-                            background: "#fff",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <>
-                      <h5 style={{ color: colors.text, marginBottom: "8px" }}>{expense.name}</h5>
-                      <p style={{ margin: "4px 0", color: colors.text }}>
-                        <strong>Amount:</strong> ₹{Number(expense.amount).toFixed(2)}
-                      </p>
-                      <p style={{ margin: "4px 0", color: colors.muted }}>
-                        <strong>Date:</strong> {new Date(expense.date).toLocaleDateString()}
-                      </p>
-                      {expense.description && (
-                        <p style={{ fontSize: "0.9rem", color: colors.muted }}>
-                          {expense.description}
-                        </p>
-                      )}
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "10px" }}>
-                        <button
-                          onClick={() => handleEdit(expense)}
-                          style={{
-                            padding: "6px 16px",
-                            borderRadius: "999px",
-                            border: `1px solid ${colors.primary}`,
-                            background: "#fff",
-                            color: colors.primary,
-                            cursor: "pointer",
-                            fontWeight: "500",
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(expenseId)}
-                          style={{
-                            padding: "6px 16px",
-                            borderRadius: "999px",
-                            border: `1px solid #EF4444`,
-                            background: "#fff",
-                            color: "#EF4444",
-                            cursor: "pointer",
-                            fontWeight: "500",
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "25px" }}>
+          {expenses.map((exp) => (
+            <div key={exp._id || exp.id} style={{
+              background: "#fff", borderRadius: "24px", padding: "25px",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.05)", border: "1px solid #E5E7EB"
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "#6366F1", fontWeight: "700" }}>{new Date(exp.date).toLocaleDateString()}</span>
+                <span style={{ background: "#F3F4F6", padding: "4px 12px", borderRadius: "999px", fontSize: "0.8rem" }}>Success ✅</span>
+              </div>
+              <h3 style={{ margin: "15px 0 5px 0", fontSize: "1.4rem" }}>{exp.name}</h3>
+              <p style={{ color: "#6B7280", marginBottom: "15px" }}>{exp.description || "No description"}</p>
+              <p style={{ fontSize: "1.8rem", fontWeight: "900", color: "#10B981" }}>₹{Number(exp.amount).toFixed(2)}</p>
+              
+              <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+                <button style={{ flex: 1, padding: "12px", borderRadius: "999px", border: "none", background: "#EEF2FF", color: "#4F46E5", fontWeight: "700", cursor: "pointer" }}>✏️ Edit</button>
+                <button onClick={() => deleteExp(exp._id || exp.id)} style={{ flex: 1, padding: "12px", borderRadius: "999px", border: "none", background: "#FFE4E6", color: "#E11D48", fontWeight: "700", cursor: "pointer" }}>🗑️ Delete</button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </ProtectedRoute>
   );

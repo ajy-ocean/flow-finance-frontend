@@ -7,56 +7,35 @@ const Dashboard = () => {
   const { ProtectedRoute } = useAuth();
   const [expenses, setExpenses] = useState([]);
 
-  const colors = {
-    primary: "#4CAF50",
-    bg: "#F9FAFB",
-    card: "#FFFFFF",
-    text: "#111827",
-    muted: "#6B7280",
-    border: "#E5E7EB",
-  };
-
   useEffect(() => {
+    const fetchExpenses = async () => {
+      try {
+        const res = await axios.get("/api/expenses");
+        setExpenses(res.data);
+      } catch { console.error("Error fetching"); }
+    };
     fetchExpenses();
   }, []);
 
-  const fetchExpenses = async () => {
-    try {
-      const res = await axios.get("/api/expenses");
-      setExpenses(res.data);
-    } catch {
-      alert("Error fetching expenses");
-    }
-  };
-
-  const totalExpenses = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
+  const total = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
 
   return (
     <ProtectedRoute>
-      <div style={{ background: colors.bg, minHeight: "100vh", padding: "40px 20px", fontFamily: "Arial, sans-serif" }}>
-        <h2 style={{ color: colors.text, marginBottom: "20px" }}>Dashboard</h2>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
-          <div style={{
-            flex: "1",
-            minWidth: "250px",
-            background: colors.card,
-            padding: "20px",
-            borderRadius: "16px",
-            border: `1px solid ${colors.border}`,
-            textAlign: "center"
-          }}>
-            <h4 style={{ color: colors.muted }}>Total Expenses</h4>
-            <p style={{ fontSize: "1.5rem", fontWeight: "600", color: colors.text }}>₹{totalExpenses.toFixed(2)}</p>
-            <Link to="/expenses" style={{
-              display: "inline-block",
-              marginTop: "10px",
-              padding: "8px 18px",
-              borderRadius: "999px",
-              backgroundColor: colors.primary,
-              color: "#fff",
-              textDecoration: "none"
-            }}>View All</Link>
-          </div>
+      <div style={{ padding: "40px 20px", maxWidth: "1100px", margin: "0 auto" }}>
+        <h2 style={{ marginBottom: "30px", fontWeight: "800", color: "#111827" }}>Your Overview 📈</h2>
+        
+        <div style={{
+          background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+          padding: "40px", borderRadius: "30px", color: "#fff", textAlign: "center",
+          boxShadow: "0 15px 35px rgba(16, 185, 129, 0.3)"
+        }}>
+          <h4 style={{ opacity: 0.9, textTransform: "uppercase", letterSpacing: "1px" }}>Total Spending</h4>
+          <h1 style={{ fontSize: "3.5rem", margin: "10px 0" }}>₹{total.toLocaleString()}</h1>
+          <Link to="/expenses" style={{
+            display: "inline-block", marginTop: "20px", padding: "12px 30px",
+            background: "#fff", color: "#059669", borderRadius: "999px",
+            textDecoration: "none", fontWeight: "700"
+          }}>View Details 🔎</Link>
         </div>
       </div>
     </ProtectedRoute>

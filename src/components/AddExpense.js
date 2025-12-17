@@ -8,14 +8,6 @@ const AddExpense = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", amount: "", date: "", description: "" });
 
-  const colors = {
-    primary: "#4CAF50",
-    bg: "#F9FAFB",
-    card: "#FFFFFF",
-    border: "#E5E7EB",
-    text: "#111827",
-  };
-
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
@@ -23,69 +15,29 @@ const AddExpense = () => {
     try {
       await axios.post("/api/expenses", form);
       navigate("/expenses");
-    } catch {
-      alert("Error adding expense");
-    }
+    } catch { alert("Error adding expense ❌"); }
   };
 
   return (
     <ProtectedRoute>
-      <div style={{ background: colors.bg, minHeight: "100vh", padding: "40px 20px", fontFamily: "Arial, sans-serif" }}>
-        <h2 style={{ color: colors.text, marginBottom: "20px" }}>Add New Expense</h2>
-        <form onSubmit={handleSubmit} style={{
-          background: colors.card,
-          padding: "20px",
-          borderRadius: "16px",
-          border: `1px solid ${colors.border}`,
-          maxWidth: "500px"
-        }}>
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Expense Name"
-            required
-            style={{ width: "100%", marginBottom: "10px", padding: "10px", borderRadius: "12px", border: `1px solid ${colors.border}` }}
-          />
-          <input
-            type="number"
-            name="amount"
-            value={form.amount}
-            onChange={handleChange}
-            placeholder="Amount"
-            required
-            style={{ width: "100%", marginBottom: "10px", padding: "10px", borderRadius: "12px", border: `1px solid ${colors.border}` }}
-          />
-          <input
-            type="date"
-            name="date"
-            value={form.date}
-            onChange={handleChange}
-            required
-            style={{ width: "100%", marginBottom: "10px", padding: "10px", borderRadius: "12px", border: `1px solid ${colors.border}` }}
-          />
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Description (optional)"
-            rows="3"
-            style={{ width: "100%", marginBottom: "10px", padding: "10px", borderRadius: "12px", border: `1px solid ${colors.border}` }}
-          />
-          <button type="submit" style={{
-            padding: "10px 22px",
-            borderRadius: "999px",
-            border: "none",
-            backgroundColor: colors.primary,
-            color: "#fff",
-            cursor: "pointer",
-            fontWeight: "500"
-          }}>Add Expense</button>
-        </form>
+      <div style={{ display: "flex", justifyContent: "center", padding: "50px 20px" }}>
+        <div style={{ background: "#fff", padding: "40px", borderRadius: "30px", width: "100%", maxWidth: "500px", boxShadow: "0 20px 40px rgba(0,0,0,0.05)" }}>
+          <h2 style={{ marginBottom: "25px", fontWeight: "800" }}>New Expense 💸</h2>
+          <form onSubmit={handleSubmit}>
+            <input name="name" placeholder="What did you buy?" required style={inputStyle} onChange={handleChange} />
+            <input name="amount" type="number" placeholder="How much? (₹)" required style={inputStyle} onChange={handleChange} />
+            <input name="date" type="date" required style={inputStyle} onChange={handleChange} />
+            <textarea name="description" placeholder="Extra notes (optional)" rows="3" style={inputStyle} onChange={handleChange} />
+            <button type="submit" style={{ width: "100%", padding: "16px", borderRadius: "999px", background: "#10B981", color: "#fff", border: "none", fontWeight: "700", fontSize: "1.1rem", cursor: "pointer", boxShadow: "0 10px 20px rgba(16, 185, 129, 0.3)" }}>
+              Save Transaction ✅
+            </button>
+          </form>
+        </div>
       </div>
     </ProtectedRoute>
   );
 };
+
+const inputStyle = { width: "100%", padding: "14px", marginBottom: "15px", borderRadius: "15px", border: "2px solid #F3F4F6", outline: "none", fontSize: "1rem" };
 
 export default AddExpense;
