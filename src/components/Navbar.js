@@ -3,58 +3,113 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
-  const { logout, isLoggedIn } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Hide navbar on Login and Register pages
-  if (location.pathname === "/" || location.pathname === "/register") return null;
+  // Define the pages where the Navbar should be hidden
+  const hideNavbarOn = ["/", "/register"];
+  if (hideNavbarOn.includes(location.pathname)) return null;
+
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to log out? 👋")) {
+      logout();
+      navigate("/");
+    }
+  };
 
   return (
-    <nav style={{
-      background: "linear-gradient(90deg, #6366F1 0%, #A855F7 100%)",
-      padding: "14px 30px",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      boxShadow: "0 4px 20px rgba(99, 102, 241, 0.3)",
-      position: "sticky",
-      top: 0,
-      zIndex: 1000,
-    }}>
-      <Link to="/dashboard" style={{ color: "#fff", fontSize: "1.6rem", fontWeight: "800", textDecoration: "none", letterSpacing: "-1px" }}>
-        🚀 FlowFinance
-      </Link>
+    <nav style={styles.nav}>
+      <div style={styles.container}>
+        {/* Left Side: Logo and Navigation */}
+        <div style={styles.leftSection}>
+          <Link to="/dashboard" style={styles.logo}>
+            🚀 <span style={{ color: "#fff" }}>Flow</span>Finance
+          </Link>
+          
+          <div style={styles.navLinks}>
+            <Link to="/dashboard" style={location.pathname === "/dashboard" ? styles.activeLink : styles.link}>
+              Home
+            </Link>
+            <Link to="/expenses" style={location.pathname === "/expenses" ? styles.activeLink : styles.link}>
+              History
+            </Link>
+            <Link to="/add-expense" style={location.pathname === "/add-expense" ? styles.activeLink : styles.link}>
+              Add 💸
+            </Link>
+          </div>
+        </div>
 
-      <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
-        <Link to="/expenses" style={{
-          padding: "8px 20px",
-          borderRadius: "999px",
-          color: "#fff",
-          textDecoration: "none",
-          background: "rgba(255, 255, 255, 0.2)",
-          fontWeight: "600",
-          backdropFilter: "blur(10px)",
-        }}>
-          📊 Records
-        </Link>
-
-        <button onClick={() => { logout(); navigate("/"); }}
-          style={{
-            padding: "8px 22px",
-            borderRadius: "999px",
-            background: "#FF3366",
-            border: "none",
-            color: "#fff",
-            cursor: "pointer",
-            fontWeight: "700",
-            boxShadow: "0 4px 12px rgba(255, 51, 102, 0.4)",
-          }}>
-          Exit 🚪
+        {/* Right Side: Logout Button */}
+        <button onClick={handleLogout} style={styles.logoutBtn}>
+          Logout 🚪
         </button>
       </div>
     </nav>
   );
+};
+
+const styles = {
+  nav: {
+    background: "#0F172A", // Deep Slate (Matches Dashboard)
+    padding: "0 20px",
+    height: "70px",
+    display: "flex",
+    alignItems: "center",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    position: "sticky",
+    top: 0,
+    zIndex: 1000,
+  },
+  container: {
+    width: "100%",
+    maxWidth: "1100px",
+    margin: "0 auto",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  leftSection: {
+    display: "flex",
+    alignItems: "center",
+    gap: "40px",
+  },
+  logo: {
+    fontSize: "1.5rem",
+    fontWeight: "800",
+    textDecoration: "none",
+    color: "#6366F1", // Brand Accent
+  },
+  navLinks: {
+    display: "flex",
+    gap: "25px",
+  },
+  link: {
+    color: "#94A3B8",
+    textDecoration: "none",
+    fontWeight: "600",
+    fontSize: "0.95rem",
+    transition: "0.2s",
+  },
+  activeLink: {
+    color: "#fff",
+    textDecoration: "none",
+    fontWeight: "700",
+    fontSize: "0.95rem",
+    borderBottom: "2px solid #6366F1",
+    paddingBottom: "5px",
+  },
+  logoutBtn: {
+    padding: "10px 24px",
+    borderRadius: "999px",
+    background: "#FF4D4D", // Red Alert Color
+    color: "#fff",
+    border: "none",
+    fontWeight: "700",
+    cursor: "pointer",
+    boxShadow: "0 8px 15px rgba(255, 77, 77, 0.25)",
+    transition: "transform 0.2s",
+  },
 };
 
 export default Navbar;
