@@ -3,8 +3,8 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-import showIcon from "../assets/show.png";
-import hideIcon from "../assets/hide.png";
+import showIcon from "../assets/icons/show.png";
+import hideIcon from "../assets/icons/hide.png";
 
 const Login = () => {
   const [username, setUsername] = useState("");
