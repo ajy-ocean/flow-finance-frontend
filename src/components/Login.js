@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios"; 
 import { useAuth } from "../context/AuthContext";
 import showIcon from "../assets/icons/show.png";
 import hideIcon from "../assets/icons/hide.png";
@@ -32,53 +33,36 @@ const Login = () => {
     outline: "none",
     fontSize: "0.95rem",
     marginBottom: "16px",
+    transition: "0.2s",
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("/api/user/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Login failed");
-      login(data.accessToken);
-      navigate("/dashboard");
-    } catch {
-      alert("Invalid credentials");
+      // Changed from fetch to axios to sync with AuthContext headers
+      const res = await axios.post("/api/user/login", { username, password });
+      
+      // Handle both 'accessToken' or 'token' depending on your backend response
+      const token = res.data.accessToken || res.data.token; 
+      
+      if (token) {
+        login(token);
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("Login Error:", err);
+      alert(err.response?.data?.message || "Invalid credentials");
     }
   };
 
   return (
-    <div
-      style={{
-        background: colors.bg,
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <div
-        style={{
-          background: colors.card,
-          padding: "36px",
-          borderRadius: "22px",
-          width: "100%",
-          maxWidth: "420px",
-          border: `1px solid ${colors.border}`,
-        }}
-      >
-        <h2
-          style={{ textAlign: "center", color: colors.green, marginBottom: "28px" }}
-        >
+    <div style={{ background: colors.bg, minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
+      <div style={{ background: colors.card, padding: "36px", borderRadius: "22px", width: "100%", maxWidth: "420px", border: `1px solid ${colors.border}` }}>
+        <h2 style={{ textAlign: "center", color: colors.green, marginBottom: "28px", fontWeight: "700" }}>
           Flow Finance
         </h2>
 
         <form onSubmit={handleSubmit}>
-          {/* USERNAME */}
           <input
             type="text"
             placeholder="Username"
@@ -88,7 +72,7 @@ const Login = () => {
             onChange={(e) => setUsername(e.target.value)}
             onFocus={(e) => {
               e.target.style.border = `1px solid ${colors.green}`;
-              e.target.style.boxShadow = "0 0 0 2px rgba(0,230,118,0.35)";
+              e.target.style.boxShadow = "0 0 0 2px rgba(0,230,118,0.2)";
             }}
             onBlur={(e) => {
               e.target.style.border = `1px solid ${colors.border}`;
@@ -96,16 +80,12 @@ const Login = () => {
             }}
           />
 
-          {/* PASSWORD */}
-          <div
-            style={{
+          <div style={{
               display: "flex",
               marginBottom: "20px",
               border: `1px solid ${isPasswordFocused ? colors.green : colors.border}`,
               borderRadius: "14px",
-              boxShadow: isPasswordFocused
-                ? "0 0 0 2px rgba(0,230,118,0.35)"
-                : "none",
+              boxShadow: isPasswordFocused ? "0 0 0 2px rgba(0,230,118,0.2)" : "none",
               transition: "0.2s",
               background: colors.bg,
             }}
@@ -118,12 +98,11 @@ const Login = () => {
               style={{
                 flex: 1,
                 padding: "14px",
-                background: colors.bg,
+                background: "transparent",
                 border: "none",
                 color: colors.text,
                 outline: "none",
                 fontSize: "0.95rem",
-                borderRadius: "14px 0 0 14px",
               }}
               onChange={(e) => setPassword(e.target.value)}
               onFocus={() => setIsPasswordFocused(true)}
@@ -132,15 +111,7 @@ const Login = () => {
             <div
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => setShowPassword(!showPassword)}
-              style={{
-                width: "52px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                cursor: "pointer",
-                borderRadius: "0 14px 14px 0",
-                background: colors.bg,
-              }}
+              style={{ width: "52px", display: "flex", justifyContent: "center", alignItems: "center", cursor: "pointer" }}
             >
               <img
                 src={showPassword ? hideIcon : showIcon}
@@ -159,7 +130,8 @@ const Login = () => {
               borderRadius: "999px",
               background: colors.green,
               border: "none",
-              fontWeight: 600,
+              color: "#000",
+              fontWeight: 700,
               cursor: "pointer",
             }}
           >
@@ -168,10 +140,7 @@ const Login = () => {
         </form>
 
         <p style={{ textAlign: "center", marginTop: "20px", color: colors.muted }}>
-          New user?{" "}
-          <Link to="/register" style={{ color: colors.green }}>
-            Create account
-          </Link>
+          New user? <Link to="/register" style={{ color: colors.green, textDecoration: "none" }}>Create account</Link>
         </p>
       </div>
     </div>

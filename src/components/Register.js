@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios"; 
 import { useAuth } from "../context/AuthContext";
 import showIcon from "../assets/icons/show.png";
 import hideIcon from "../assets/icons/hide.png";
@@ -36,6 +37,7 @@ const Register = () => {
     fontSize: "0.95rem",
     marginBottom: "16px",
     background: colors.bg,
+    transition: "0.2s",
   };
 
   const handleChange = (e) =>
@@ -44,41 +46,24 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("/api/user/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Registration failed");
-      login(data.accessToken);
-      navigate("/dashboard");
-    } catch {
-      alert("Registration failed");
+      // Switched to axios
+      const res = await axios.post("/api/user/register", formData);
+      
+      const token = res.data.accessToken || res.data.token;
+      if (token) {
+        login(token);
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("Registration Error:", err);
+      alert(err.response?.data?.message || "Registration failed");
     }
   };
 
   return (
-    <div
-      style={{
-        background: colors.bg,
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <div
-        style={{
-          background: colors.card,
-          padding: "36px",
-          borderRadius: "22px",
-          width: "100%",
-          maxWidth: "420px",
-          border: `1px solid ${colors.border}`,
-        }}
-      >
-        <h2 style={{ textAlign: "center", color: colors.green, marginBottom: "28px" }}>
+    <div style={{ background: colors.bg, minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
+      <div style={{ background: colors.card, padding: "36px", borderRadius: "22px", width: "100%", maxWidth: "420px", border: `1px solid ${colors.border}` }}>
+        <h2 style={{ textAlign: "center", color: colors.green, marginBottom: "28px", fontWeight: "700" }}>
           Create Account
         </h2>
 
@@ -88,32 +73,28 @@ const Register = () => {
               key={field}
               type={field === "email" ? "email" : "text"}
               name={field}
-              placeholder={field === "fullName" ? "Full Name" : field}
+              placeholder={field === "fullName" ? "Full Name" : field.charAt(0).toUpperCase() + field.slice(1)}
               required
               style={inputStyle}
+              onChange={handleChange}
               onFocus={(e) => {
                 e.target.style.border = `1px solid ${colors.green}`;
-                e.target.style.boxShadow = "0 0 0 2px rgba(0,230,118,0.35)";
+                e.target.style.boxShadow = "0 0 0 2px rgba(0,230,118,0.2)";
               }}
               onBlur={(e) => {
                 e.target.style.border = `1px solid ${colors.border}`;
                 e.target.style.boxShadow = "none";
               }}
-              onChange={handleChange}
             />
           ))}
 
-          {/* PASSWORD FIELD */}
-          <div
-            style={{
+          <div style={{
               display: "flex",
               alignItems: "center",
               border: `1px solid ${isPasswordFocused ? colors.green : colors.border}`,
               borderRadius: "14px",
               marginBottom: "16px",
-              boxShadow: isPasswordFocused
-                ? "0 0 0 2px rgba(0,230,118,0.35)"
-                : "none",
+              boxShadow: isPasswordFocused ? "0 0 0 2px rgba(0,230,118,0.2)" : "none",
               transition: "0.2s",
               background: colors.bg,
             }}
@@ -126,12 +107,11 @@ const Register = () => {
               style={{
                 flex: 1,
                 padding: "14px",
-                background: colors.bg,
+                background: "transparent",
                 border: "none",
                 color: colors.text,
                 outline: "none",
                 fontSize: "0.95rem",
-                borderRadius: "14px 0 0 14px",
               }}
               onFocus={() => setIsPasswordFocused(true)}
               onBlur={() => setIsPasswordFocused(false)}
@@ -140,15 +120,7 @@ const Register = () => {
             <div
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => setShowPassword(!showPassword)}
-              style={{
-                width: "48px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                cursor: "pointer",
-                borderRadius: "0 14px 14px 0",
-                background: colors.bg,
-              }}
+              style={{ width: "48px", display: "flex", justifyContent: "center", alignItems: "center", cursor: "pointer" }}
             >
               <img
                 src={showPassword ? hideIcon : showIcon}
@@ -167,7 +139,8 @@ const Register = () => {
               borderRadius: "999px",
               background: colors.green,
               border: "none",
-              fontWeight: 600,
+              color: "#000",
+              fontWeight: 700,
               cursor: "pointer",
             }}
           >
@@ -176,10 +149,7 @@ const Register = () => {
         </form>
 
         <p style={{ textAlign: "center", marginTop: "20px", color: colors.muted }}>
-          Already have an account?{" "}
-          <Link to="/" style={{ color: colors.green }}>
-            Sign In
-          </Link>
+          Already have an account? <Link to="/" style={{ color: colors.green, textDecoration: "none" }}>Sign In</Link>
         </p>
       </div>
     </div>
