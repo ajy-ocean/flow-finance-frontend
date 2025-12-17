@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";
 import { useAuth } from "../context/AuthContext";
 
 const ExpenseList = () => {
@@ -10,11 +9,12 @@ const ExpenseList = () => {
   const navigate = useNavigate();
 
   const colors = {
-    bg: "#0F1115",
+    bg: "#111",
     card: "#161A20",
     green: "#00E676",
     text: "#EDEDED",
-    border: "#2A2F3A",
+    muted: "#9AA0A6",
+    shadow: "0 8px 20px rgba(0,230,118,0.25)",
   };
 
   useEffect(() => {
@@ -22,63 +22,69 @@ const ExpenseList = () => {
   }, []);
 
   const fetchExpenses = async () => {
-    const res = await axios.get("/api/expenses");
-    setExpenses(res.data);
+    try {
+      const res = await axios.get("/api/expenses");
+      const sorted = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setExpenses(sorted);
+    } catch {
+      alert("Error fetching expenses");
+    }
   };
 
   return (
     <ProtectedRoute>
-      <Navbar />
-
-      <div
-        style={{ background: colors.bg, minHeight: "100vh", padding: "30px" }}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))",
-            gap: "20px",
-          }}
-        >
-          {expenses.map((e) => (
-            <div
-              key={e._id || e.id}
-              style={{
-                background: colors.card,
-                borderRadius: "18px",
-                padding: "18px",
-                border: `1px solid ${colors.border}`,
-                color: colors.text,
-              }}
-            >
-              <h4>{e.name}</h4>
-              <p>₹ {Number(e.amount).toFixed(2)}</p>
-              <small>{new Date(e.date).toDateString()}</small>
-            </div>
-          ))}
+      <div style={{ background: colors.bg, minHeight: "100vh", padding: "2rem" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
+          <button
+            onClick={() => navigate("/add-expense")}
+            style={{
+              padding: "1rem 2rem",
+              borderRadius: "999px",
+              background: colors.green,
+              color: "#111",
+              fontWeight: 600,
+              border: "none",
+              cursor: "pointer",
+              boxShadow: colors.shadow,
+            }}
+          >
+            ➕ Add New Expense
+          </button>
         </div>
 
-        {/* Google Keep style add button */}
-        <button
-          onClick={() => navigate("/add-expense")}
-          style={{
-            position: "fixed",
-            bottom: "40px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "64px",
-            height: "64px",
-            borderRadius: "50%",
-            background: colors.green,
-            color: "#000",
-            fontSize: "32px",
-            border: "none",
-            cursor: "pointer",
-            boxShadow: "0 10px 30px rgba(0,230,118,0.4)",
-          }}
-        >
-          +
-        </button>
+        {expenses.length === 0 ? (
+          <p style={{ textAlign: "center", color: colors.muted }}>No expenses recorded yet.</p>
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+              gap: "1rem",
+            }}
+          >
+            {expenses.map((expense) => (
+              <div
+                key={expense._id || expense.id}
+                style={{
+                  borderRadius: "16px",
+                  background: colors.card,
+                  padding: "20px",
+                  color: colors.text,
+                  boxShadow: colors.shadow,
+                }}
+              >
+                <h5>{expense.name}</h5>
+                <p>
+                  <strong>Amount:</strong> ₹{Number(expense.amount).toFixed(2)}
+                </p>
+                <p style={{ color: colors.muted }}>
+                  <strong>Date:</strong> {new Date(expense.date).toLocaleDateString()}
+                </p>
+                {expense.description && <p style={{ fontSize: "0.9rem", color: colors.muted }}>{expense.description}</p>}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </ProtectedRoute>
   );

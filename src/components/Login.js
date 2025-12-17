@@ -10,6 +10,7 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const Login = () => {
     green: "#00E676",
     text: "#EDEDED",
     border: "#2A2F3A",
+    muted: "#9AA0A6",
   };
 
   const inputStyle = {
@@ -31,15 +33,13 @@ const Login = () => {
     color: colors.text,
     outline: "none",
     fontSize: "0.95rem",
+    marginBottom: "16px",
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/api/user/login", {
-        username,
-        password,
-      });
+      const res = await axios.post("/api/user/login", { username, password });
       login(res.data.accessToken);
       navigate("/dashboard");
     } catch {
@@ -48,33 +48,22 @@ const Login = () => {
   };
 
   return (
-    <div
-      style={{
-        background: colors.bg,
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          background: colors.card,
-          padding: "36px",
-          borderRadius: "22px",
-          width: "100%",
-          maxWidth: "420px",
-          border: `1px solid ${colors.border}`,
-        }}
-      >
-        <h2
-          style={{
-            textAlign: "center",
-            color: colors.green,
-            marginBottom: "28px",
-          }}
-        >
+    <div style={{
+      background: colors.bg,
+      minHeight: "100vh",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    }}>
+      <div style={{
+        background: colors.card,
+        padding: "36px",
+        borderRadius: "22px",
+        width: "100%",
+        maxWidth: "420px",
+        border: `1px solid ${colors.border}`,
+      }}>
+        <h2 style={{ textAlign: "center", color: colors.green, marginBottom: "28px" }}>
           Flow Finance
         </h2>
 
@@ -85,55 +74,74 @@ const Login = () => {
             placeholder="Username"
             value={username}
             required
-            style={{ ...inputStyle, marginBottom: "16px" }}
+            style={inputStyle}
             onChange={(e) => setUsername(e.target.value)}
-            onFocus={(e) =>
-              (e.target.style.boxShadow =
-                "0 0 0 2px rgba(0,230,118,0.5)")
-            }
-            onBlur={(e) => (e.target.style.boxShadow = "none")}
+            onFocus={(e) => {
+              e.target.style.border = `1px solid ${colors.green}`;
+              e.target.style.boxShadow = "0 0 0 2px rgba(0,230,118,0.35)";
+            }}
+            onBlur={(e) => {
+              e.target.style.border = `1px solid ${colors.border}`;
+              e.target.style.boxShadow = "none";
+            }}
           />
 
-          {/* PASSWORD */}
-          <div style={{ display: "flex", marginBottom: "20px" }}>
+          {/* PASSWORD (UNIFIED FIELD) */}
+          <div
+            style={{
+              display: "flex",
+              marginBottom: "20px",
+              border: `1px solid ${
+                isPasswordFocused ? colors.green : colors.border
+              }`,
+              borderRadius: "14px",
+              boxShadow: isPasswordFocused
+                ? "0 0 0 2px rgba(0,230,118,0.35)"
+                : "none",
+              transition: "0.2s",
+            }}
+          >
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
               required
               style={{
-                ...inputStyle,
-                borderTopRightRadius: 0,
-                borderBottomRightRadius: 0,
+                flex: 1,
+                padding: "14px",
+                background: colors.bg,
+                border: "none",
+                color: colors.text,
+                outline: "none",
+                fontSize: "0.95rem",
+                borderRadius: "14px 0 0 14px",
               }}
               onChange={(e) => setPassword(e.target.value)}
-              onFocus={(e) =>
-                (e.target.style.boxShadow =
-                  "0 0 0 2px rgba(0,230,118,0.5)")
-              }
-              onBlur={(e) => (e.target.style.boxShadow = "none")}
+              onFocus={() => setIsPasswordFocused(true)}
+              onBlur={() => setIsPasswordFocused(false)}
             />
 
-            {/* EYE ICON */}
             <div
-              onClick={() => setShowPassword(!showPassword)}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                setShowPassword(!showPassword);
+                setIsPasswordFocused(true);
+              }}
               style={{
                 width: "52px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                border: `1px solid ${colors.border}`,
-                borderLeft: "none",
-                borderTopRightRadius: "14px",
-                borderBottomRightRadius: "14px",
-                background: colors.bg,
                 cursor: "pointer",
+                background: colors.bg,
+                borderRadius: "0 14px 14px 0",
               }}
             >
               <img
                 src={showPassword ? hideIcon : showIcon}
-                alt="toggle password"
+                alt="toggle"
                 width="20"
+                style={{ filter: "brightness(0) invert(1)" }}
               />
             </div>
           </div>
@@ -148,25 +156,15 @@ const Login = () => {
               border: "none",
               fontWeight: 600,
               cursor: "pointer",
-              fontSize: "1rem",
             }}
           >
             Sign In
           </button>
         </form>
 
-        <p
-          style={{
-            textAlign: "center",
-            marginTop: "20px",
-            color: "#aaa",
-          }}
-        >
-          New here?{" "}
-          <Link
-            to="/register"
-            style={{ color: colors.green, textDecoration: "none" }}
-          >
+        <p style={{ textAlign: "center", marginTop: "20px", color: colors.muted }}>
+          New user?{" "}
+          <Link to="/register" style={{ color: colors.green }}>
             Create account
           </Link>
         </p>

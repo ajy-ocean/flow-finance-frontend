@@ -15,6 +15,8 @@ const Register = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -24,18 +26,19 @@ const Register = () => {
     green: "#00E676",
     text: "#EDEDED",
     border: "#2A2F3A",
+    muted: "#9AA0A6",
   };
 
   const inputStyle = {
     width: "100%",
     padding: "14px",
-    background: colors.bg,
     border: `1px solid ${colors.border}`,
     borderRadius: "14px",
     color: colors.text,
     outline: "none",
     fontSize: "0.95rem",
     marginBottom: "16px",
+    background: colors.bg,
   };
 
   const handleChange = (e) =>
@@ -60,7 +63,6 @@ const Register = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        padding: "20px",
       }}
     >
       <div
@@ -89,63 +91,78 @@ const Register = () => {
               key={field}
               type={field === "email" ? "email" : "text"}
               name={field}
-              placeholder={
-                field === "fullName"
-                  ? "Full Name"
-                  : field.charAt(0).toUpperCase() + field.slice(1)
-              }
-              style={inputStyle}
-              onChange={handleChange}
+              placeholder={field === "fullName" ? "Full Name" : field}
               required
-              onFocus={(e) =>
-                (e.target.style.boxShadow =
-                  "0 0 0 2px rgba(0,230,118,0.5)")
-              }
-              onBlur={(e) => (e.target.style.boxShadow = "none")}
+              style={inputStyle}
+              onFocus={(e) => {
+                e.target.style.border = `1px solid ${colors.green}`;
+                e.target.style.boxShadow = "0 0 0 2px rgba(0,230,118,0.35)";
+              }}
+              onBlur={(e) => {
+                e.target.style.border = `1px solid ${colors.border}`;
+                e.target.style.boxShadow = "none";
+              }}
+              onChange={handleChange}
             />
           ))}
 
-          {/* PASSWORD */}
-          <div style={{ display: "flex", marginBottom: "20px" }}>
+          {/* PASSWORD FIELD */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              border: `1px solid ${
+                isPasswordFocused ? colors.green : colors.border
+              }`,
+              borderRadius: "14px",
+              marginBottom: "16px",
+              boxShadow: isPasswordFocused
+                ? "0 0 0 2px rgba(0,230,118,0.35)"
+                : "none",
+              transition: "0.2s",
+              background: colors.bg,
+            }}
+            onClick={() => setIsPasswordFocused(true)}
+            onBlur={() => setIsPasswordFocused(false)}
+          >
             <input
               type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Password"
-              style={{
-                ...inputStyle,
-                marginBottom: 0,
-                borderTopRightRadius: 0,
-                borderBottomRightRadius: 0,
-              }}
-              onChange={handleChange}
               required
-              onFocus={(e) =>
-                (e.target.style.boxShadow =
-                  "0 0 0 2px rgba(0,230,118,0.5)")
-              }
-              onBlur={(e) => (e.target.style.boxShadow = "none")}
+              style={{
+                flex: 1,
+                padding: "14px",
+                background: colors.bg,
+                border: "none",
+                color: colors.text,
+                outline: "none",
+                fontSize: "0.95rem",
+                borderRadius: "14px 0 0 14px",
+              }}
+              onFocus={() => setIsPasswordFocused(true)}
+              onBlur={() => setIsPasswordFocused(false)}
+              onChange={handleChange}
             />
-
-            {/* EYE ICON */}
             <div
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => setShowPassword(!showPassword)}
               style={{
-                width: "52px",
+                width: "48px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                border: `1px solid ${colors.border}`,
-                borderLeft: "none",
-                borderTopRightRadius: "14px",
-                borderBottomRightRadius: "14px",
-                background: colors.bg,
                 cursor: "pointer",
+                borderRadius: "0 14px 14px 0",
+                background: colors.card,
+                background: colors.bg,
               }}
             >
               <img
                 src={showPassword ? hideIcon : showIcon}
-                alt="toggle password"
+                alt="toggle"
                 width="20"
+                style={{ filter: "brightness(0) invert(1)" }}
               />
             </div>
           </div>
@@ -159,8 +176,6 @@ const Register = () => {
               background: colors.green,
               border: "none",
               fontWeight: 600,
-              cursor: "pointer",
-              fontSize: "1rem",
             }}
           >
             Sign Up
@@ -171,14 +186,11 @@ const Register = () => {
           style={{
             textAlign: "center",
             marginTop: "20px",
-            color: "#aaa",
+            color: colors.muted,
           }}
         >
           Already have an account?{" "}
-          <Link
-            to="/"
-            style={{ color: colors.green, textDecoration: "none" }}
-          >
+          <Link to="/" style={{ color: colors.green }}>
             Sign In
           </Link>
         </p>

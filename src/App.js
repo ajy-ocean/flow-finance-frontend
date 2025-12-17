@@ -6,57 +6,61 @@ import Dashboard from "./components/Dashboard";
 import AddExpense from "./components/AddExpense";
 import ExpenseList from "./components/ExpenseList";
 
-// Helper component for the Navigation Bar
+// Single NavBar Component
 const NavBar = () => {
   const { isLoggedIn, logout } = useAuth();
-  const primaryColor = "#00796B"; // Deep Cyan
+  const primaryColor = "#00E676"; // Green accent
+
+  if (!isLoggedIn) return null; // Don't show navbar on login/register
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-      <div className="container-fluid px-4">
-        {/* Custom Icon Placeholder (Themed) */}
-        <div
+    <nav
+      style={{
+        background: "#111",
+        padding: "0.8rem 2rem",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+      }}
+    >
+      <Link
+        to="/dashboard"
+        style={{ fontWeight: 700, fontSize: "1.5rem", color: primaryColor, textDecoration: "none" }}
+      >
+        FlowFinance
+      </Link>
+
+      <div style={{ display: "flex", gap: "1rem" }}>
+        <Link
+          to="/expenses"
           style={{
-            fontSize: "1.5rem",
-            color: primaryColor,
-            marginRight: "10px",
+            padding: "0.5rem 1rem",
+            borderRadius: "999px",
+            background: "#222",
+            color: "#fff",
+            textDecoration: "none",
+            fontWeight: 500,
           }}
         >
-          📈
-        </div>
-        <Link className="navbar-brand fw-bold text-dark" to="/dashboard">
-          Flow Finance
+          Records
         </Link>
-
-        <div className="collapse navbar-collapse justify-content-end">
-          {isLoggedIn && (
-            <ul className="navbar-nav">
-              <li className="nav-item">
-                <Link className="nav-link text-muted" to="/expenses">
-                  Records
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link text-muted" to="/add-expense">
-                  Add
-                </Link>
-              </li>
-              <li className="nav-item">
-                <button
-                  onClick={logout}
-                  className="btn btn-sm ms-3"
-                  style={{
-                    backgroundColor: primaryColor,
-                    color: "white",
-                    borderColor: primaryColor,
-                  }}
-                >
-                  Logout
-                </button>
-              </li>
-            </ul>
-          )}
-        </div>
+        <button
+          onClick={logout}
+          style={{
+            padding: "0.5rem 1rem",
+            borderRadius: "999px",
+            background: primaryColor,
+            color: "#111",
+            border: "none",
+            cursor: "pointer",
+            fontWeight: 500,
+          }}
+        >
+          Logout
+        </button>
       </div>
     </nav>
   );
@@ -67,22 +71,14 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        {/* Global Wrapper for consistent light background */}
-        <div className="App bg-light min-vh-100">
-          {/* Routes that need the NavBar */}
+        <NavBar /> {/* Only one navbar */}
+        <div style={{ background: "#111", minHeight: "100vh" }}>
           <Routes>
-            <Route path="/dashboard" element={<NavBar />} />
-            <Route path="/add-expense" element={<NavBar />} />
-            <Route path="/expenses" element={<NavBar />} />
-          </Routes>
-
-          {/* Routes that contain the actual content */}
-          <Routes>
-            {/* Auth Routes - Full screen, no Nav */}
+            {/* Public Routes */}
             <Route path="/" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            {/* Protected Content Routes - Content below Nav */}
+            {/* Protected Routes */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/add-expense" element={<AddExpense />} />
             <Route path="/expenses" element={<ExpenseList />} />
