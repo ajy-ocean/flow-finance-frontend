@@ -1,83 +1,115 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import Navbar from './Navbar';
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
+import { useAuth } from "../context/AuthContext";
 
 const AddExpense = () => {
-    const [formData, setFormData] = useState({ name: '', amount: '', date: '', description: '' });
-    const [focusedField, setFocusedField] = useState(null);
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { ProtectedRoute } = useAuth();
+  const [formData, setFormData] = useState({
+    name: "",
+    amount: "",
+    date: "",
+    description: "",
+  });
 
-    const colors = { primary: '#00BFA6', bg: '#F0F2F5' };
+  const { ProtectedRoute } = useAuth();
+  const navigate = useNavigate();
 
-    const queryParams = new URLSearchParams(location.search);
-    const id = queryParams.get('id');
+  const colors = {
+    bg: "#0F1115",
+    card: "#161A20",
+    green: "#00E676",
+    text: "#EDEDED",
+    border: "#2A2F3A",
+  };
 
-    useEffect(() => {
-        if (id) {
-            axios.get(`/api/expenses/${id}`)
-                .then(res => setFormData(res.data))
-                .catch(() => alert('Failed to load expense data.'));
-        }
-    }, [id]);
+  const inputStyle = {
+    width: "100%",
+    padding: "14px",
+    background: colors.bg,
+    border: `1px solid ${colors.border}`,
+    borderRadius: "14px",
+    color: colors.text,
+    outline: "none",
+    marginBottom: "16px",
+  };
 
-    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await axios.post("/api/expenses", formData);
+    navigate("/expenses");
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            if (id) await axios.put(`/api/expenses/${id}`, formData);
-            else await axios.post('/api/expenses', formData);
-            navigate('/expenses');
-        } catch {
-            alert('Something went wrong');
-        }
-    };
+  return (
+    <ProtectedRoute>
+      <Navbar />
 
-    const inputStyle = (field) => ({
-        borderRadius: '12px',
-        border: '1px solid #ccc',
-        padding: '12px',
-        width: '100%',
-        marginBottom: '15px',
-        transition: '0.3s',
-        outline: 'none',
-        boxShadow: focusedField === field ? '0 0 8px rgba(0,191,166,0.35)' : '0 2px 8px rgba(0,0,0,0.05)'
-    });
+      <div
+        style={{
+          background: colors.bg,
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            background: colors.card,
+            padding: "32px",
+            borderRadius: "20px",
+            width: "400px",
+            border: `1px solid ${colors.border}`,
+          }}
+        >
+          <h2 style={{ color: colors.green, marginBottom: "20px" }}>
+            Add Expense
+          </h2>
 
-    const buttonStyle = {
-        borderRadius: '999px',
-        padding: '12px 25px',
-        border: 'none',
-        backgroundColor: colors.primary,
-        color: '#fff',
-        fontWeight: 500,
-        cursor: 'pointer',
-        transition: '0.2s',
-        boxShadow: '0 6px 18px rgba(0,191,166,0.35)'
-    };
+          {["name", "amount", "date"].map((f) => (
+            <input
+              key={f}
+              type={f === "amount" ? "number" : f === "date" ? "date" : "text"}
+              placeholder={f.toUpperCase()}
+              style={inputStyle}
+              onFocus={(e) =>
+                (e.target.style.boxShadow = "0 0 0 2px rgba(0,230,118,0.5)")
+              }
+              onBlur={(e) => (e.target.style.boxShadow = "none")}
+              onChange={(e) =>
+                setFormData({ ...formData, [f]: e.target.value })
+              }
+              required
+            />
+          ))}
 
-    return (
-        <ProtectedRoute>
-            <Navbar />
-            <div style={{ background: colors.bg, minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '3rem' }}>
-                <div style={{ maxWidth: '600px', width: '100%', background: '#fff', borderRadius: '20px', boxShadow: '0 12px 24px rgba(0,0,0,0.08)', padding: '2rem' }}>
-                    <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: '#00BFA6' }}>{id ? 'Edit Expense' : 'Record New Expense'}</h2>
-                    <form onSubmit={handleSubmit}>
-                        {['name','amount','date','description'].map(field => (
-                            field === 'description' ? 
-                            <textarea key={field} rows="3" name={field} value={formData[field]} onChange={handleChange} placeholder="Description (optional)" style={inputStyle(field)} onFocus={() => setFocusedField(field)} onBlur={() => setFocusedField(null)} /> :
-                            <input key={field} type={field==='amount'?'number':field==='date'?'date':'text'} name={field} value={formData[field]} onChange={handleChange} placeholder={field==='name'?'Expense Name':field==='amount'?'Amount':'Date'} style={inputStyle(field)} required onFocus={() => setFocusedField(field)} onBlur={() => setFocusedField(null)} />
-                        ))}
-                        <button type="submit" style={buttonStyle}>{id ? 'Update Transaction' : 'Save Transaction'}</button>
-                    </form>
-                </div>
-            </div>
-        </ProtectedRoute>
-    );
+          <textarea
+            placeholder="Description"
+            rows="3"
+            style={inputStyle}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
+          />
+
+          <button
+            style={{
+              width: "100%",
+              padding: "14px",
+              borderRadius: "999px",
+              background: colors.green,
+              border: "none",
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Save
+          </button>
+        </form>
+      </div>
+    </ProtectedRoute>
+  );
 };
 
 export default AddExpense;
