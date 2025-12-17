@@ -17,33 +17,47 @@ const Dashboard = () => {
   return (
     <ProtectedRoute>
       <div style={{
-        backgroundImage: "linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)), url('https://picsum.photos/1600/900?money')",
+        backgroundImage: "linear-gradient(rgba(224, 242, 254, 0.8), rgba(224, 242, 254, 0.8)), url('https://picsum.photos/1600/900?accounting')",
         backgroundSize: "cover",
         minHeight: "91vh",
         display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "50px"
+        justifyContent: "center",
+        alignItems: "center"
       }}>
         <div style={{
-          background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
+          background: "#ffffff",
           padding: "60px",
-          borderRadius: "30px",
+          borderRadius: "40px",
           textAlign: "center",
-          border: "4px solid #3b82f6",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.1)"
+          border: "5px solid #0ea5e9",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.2)",
+          maxWidth: "500px",
+          width: "90%"
         }}>
-          <h2 style={{ color: "#1e40af", fontSize: "2rem" }}>Monthly Spending 💸</h2>
-          <h1 style={{ fontSize: "5rem", color: "#ef4444", margin: "20px 0" }}>₹{total.toLocaleString()}</h1>
+          <h4 style={{ color: "#0369a1", textTransform: "uppercase", letterSpacing: "2px", margin: 0 }}>Current Spending</h4>
+          <h1 style={{ fontSize: "5rem", color: "#dc2626", margin: "20px 0", fontWeight: "900" }}>₹{total.toLocaleString()}</h1>
+          <p style={{ color: "#64748b", fontSize: "1.1rem", marginBottom: "30px" }}>You've tracked {expenses.length} expenses so far! 💸</p>
+          
           <button onClick={() => navigate("/add-expense")} style={{
-            background: "#10b981", color: "#fff", padding: "20px 40px", fontSize: "1.3rem",
-            border: "none", borderRadius: "15px", fontWeight: "bold", cursor: "pointer", boxShadow: "0 10px 0 #059669"
-          }}>
-            + ADD NEW EXPENSE
+            background: "#10b981", 
+            color: "#fff", 
+            padding: "20px 40px", 
+            fontSize: "1.4rem",
+            border: "none", 
+            borderRadius: "20px", 
+            fontWeight: "bold", 
+            cursor: "pointer", 
+            boxShadow: "0 10px 0 #059669",
+            transition: "0.2s"
+          }} 
+          onMouseDown={(e) => e.target.style.transform = "translateY(5px)"}
+          onMouseUp={(e) => e.target.style.transform = "translateY(0px)"}>
+            + ADD EXPENSE
           </button>
         </div>
       </div>
     </ProtectedRoute>
   );
 };
+
 export default Dashboard;
