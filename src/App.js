@@ -5,12 +5,18 @@ import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import AddExpense from "./components/AddExpense";
 import ExpenseList from "./components/ExpenseList";
+import Navbar from "./components/Navbar"; // 1. IMPORT NAVBAR
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <div style={{ background: "#111", minHeight: "100vh" }}>
+        {/* Changed background to a soothing color instead of black #111 */}
+        <div style={{ background: "#f0f9ff", minHeight: "100vh" }}>
+          
+          {/* 2. PLACE NAVBAR HERE (Above Routes) */}
+          <Navbar /> 
+
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Login />} />
