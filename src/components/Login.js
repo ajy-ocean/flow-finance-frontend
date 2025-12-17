@@ -2,139 +2,44 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import showIcon from "../assets/icons/show.png";
-import hideIcon from "../assets/icons/hide.png";
-
-const styles = {
-  container: {
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "20px"
-  },
-  card: {
-    background: "rgba(255, 255, 255, 0.95)",
-    padding: "40px",
-    borderRadius: "30px",
-    width: "100%",
-    maxWidth: "400px",
-    textAlign: "center",
-    boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
-    backdropFilter: "blur(10px)"
-  },
-  title: { color: "#4F46E5", marginBottom: "10px", fontWeight: "800", fontSize: "2rem" },
-  subtitle: { color: "#6B7280", marginBottom: "30px", fontWeight: "500" },
-  input: {
-    width: "100%",
-    padding: "16px",
-    marginBottom: "15px",
-    borderRadius: "15px",
-    border: "2px solid #E5E7EB",
-    outline: "none",
-    fontSize: "1rem",
-    boxSizing: "border-box"
-  },
-  passwordWrapper: {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-    marginBottom: "25px",
-  },
-  passwordInput: {
-    width: "100%",
-    padding: "16px",
-    paddingRight: "50px",
-    borderRadius: "15px",
-    border: "2px solid #E5E7EB",
-    outline: "none",
-    fontSize: "1rem",
-    boxSizing: "border-box"
-  },
-  toggleBtn: {
-    position: "absolute",
-    right: "15px",
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center"
-  },
-  icon: { width: "22px", height: "22px", opacity: "0.5" },
-  mainBtn: {
-    width: "100%",
-    padding: "16px",
-    borderRadius: "999px",
-    background: "#4F46E5",
-    color: "#fff",
-    border: "none",
-    fontWeight: "700",
-    fontSize: "1.1rem",
-    cursor: "pointer",
-    boxShadow: "0 10px 20px rgba(79, 70, 229, 0.4)",
-    transition: "0.3s"
-  },
-  footerText: { marginTop: "25px", color: "#6B7280" },
-  link: { color: "#4F46E5", fontWeight: "700", textDecoration: "none" }
-};
+import showImg from "../assets/icons/show.png";
+import hideImg from "../assets/icons/hide.png";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [user, setUser] = useState({ username: "", password: "" });
+  const [show, setShow] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/api/user/login", { username, password });
+      const res = await axios.post("/api/user/login", user);
       login(res.data.accessToken || res.data.token);
       navigate("/dashboard");
-    } catch (err) {
-      alert("Oops! Wrong credentials ❌");
-    }
+    } catch { alert("Invalid Credentials ❌"); }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Welcome! 👋</h1>
-        <p style={styles.subtitle}>Manage your 💸 effectively</p>
-
-        <form onSubmit={handleSubmit}>
-          <input type="text" placeholder="Username" required style={styles.input} onChange={(e) => setUsername(e.target.value)} />
-
-          <div style={styles.passwordWrapper}>
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              required
-              style={styles.passwordInput}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} style={styles.toggleBtn}>
-              <img src={showPassword ? hideIcon : showIcon} alt="toggle" style={styles.icon} />
-            </button>
+    <div style={{ background: "#3b82f6", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <div style={{ background: "#fff", padding: "40px", borderRadius: "25px", width: "350px", boxShadow: "0 15px 30px rgba(0,0,0,0.2)" }}>
+        <h1 style={{ color: "#f59e0b", textAlign: "center", margin: "0 0 20px 0" }}>Flow Finance 🏦</h1>
+        <form onSubmit={handleLogin}>
+          <input type="text" placeholder="Username" required style={inputS} onChange={(e) => setUser({...user, username: e.target.value})} />
+          <div style={{ position: "relative" }}>
+            <input type={show ? "text" : "password"} placeholder="Password" required style={inputS} onChange={(e) => setUser({...user, password: e.target.value})} />
+            <img src={show ? hideImg : showImg} onClick={() => setShow(!show)} style={iconS} alt="eye" />
           </div>
-
-          <button 
-            type="submit" 
-            style={styles.mainBtn}
-            onMouseOver={(e) => e.target.style.transform = "translateY(-2px)"}
-            onMouseOut={(e) => e.target.style.transform = "translateY(0)"}
-          >
-            Let's Go! 🚀
-          </button>
+          <button type="submit" style={btnS}>Login 🚀</button>
         </form>
-
-        <p style={styles.footerText}>
-          New here? <Link to="/register" style={styles.link}>Join now!</Link>
-        </p>
+        <p style={{ textAlign: "center", marginTop: "15px" }}>New? <Link to="/register" style={{ color: "#3b82f6", fontWeight: "bold" }}>Sign Up</Link></p>
       </div>
     </div>
   );
 };
+
+const inputS = { width: "100%", padding: "12px", marginBottom: "15px", borderRadius: "8px", border: "2px solid #e2e8f0", boxSizing: "border-box" };
+const iconS = { position: "absolute", right: "10px", top: "12px", width: "20px", cursor: "pointer" };
+const btnS = { width: "100%", padding: "12px", background: "#f59e0b", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer" };
 
 export default Login;

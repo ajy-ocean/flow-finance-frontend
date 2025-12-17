@@ -1,36 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const AddExpense = () => {
   const { ProtectedRoute } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", amount: "", date: "", description: "" });
-
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const location = useLocation();
+  
+  // Check if we are editing an existing expense
+  const editData = location.state?.expense;
+  
+  const [form, setForm] = useState({
+    name: editData?.name || "",
+    amount: editData?.amount || "",
+    date: editData?.date ? editData.date.split('T')[0] : "",
+    description: editData?.description || ""
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/api/expenses", form);
+      if (editData) {
+        // MATCHES YOUR CONTROLLER: @PutMapping("/{id}")
+        await axios.put(`/api/expenses/${editData._id || editData.id}`, form);
+        alert("Updated successfully! ✅");
+      } else {
+        // MATCHES YOUR CONTROLLER: @PostMapping
+        await axios.post("/api/expenses", form);
+        alert("Added successfully! 💰");
+      }
       navigate("/expenses");
-    } catch { alert("Error adding expense ❌"); }
+    } catch (err) {
+      alert("Error saving data. Please check your connection.");
+    }
   };
 
   return (
     <ProtectedRoute>
-      <div style={{ display: "flex", justifyContent: "center", padding: "50px 20px" }}>
-        <div style={{ background: "#fff", padding: "40px", borderRadius: "30px", width: "100%", maxWidth: "500px", boxShadow: "0 20px 40px rgba(0,0,0,0.05)" }}>
-          <h2 style={{ marginBottom: "25px", fontWeight: "800" }}>New Expense 💸</h2>
-          <form onSubmit={handleSubmit}>
-            <input name="name" placeholder="What did you buy?" required style={inputStyle} onChange={handleChange} />
-            <input name="amount" type="number" placeholder="How much? (₹)" required style={inputStyle} onChange={handleChange} />
-            <input name="date" type="date" required style={inputStyle} onChange={handleChange} />
-            <textarea name="description" placeholder="Extra notes (optional)" rows="3" style={inputStyle} onChange={handleChange} />
-            <button type="submit" style={{ width: "100%", padding: "16px", borderRadius: "999px", background: "#10B981", color: "#fff", border: "none", fontWeight: "700", fontSize: "1.1rem", cursor: "pointer", boxShadow: "0 10px 20px rgba(16, 185, 129, 0.3)" }}>
-              Save Transaction ✅
+      <div style={{ padding: "40px", display: "flex", justifyContent: "center", background: "#f0f4f8", minHeight: "100vh" }}>
+        <div style={{ background: "#fff", padding: "30px", borderRadius: "20px", width: "100%", maxWidth: "500px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", border: "2px solid #3b82f6" }}>
+          <h2 style={{ color: "#1e3a8a", textAlign: "center" }}>{editData ? "📝 Edit Expense" : "➕ Add New Expense"}</h2>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            <input type="text" placeholder="Item Name (e.g. Pizza 🍕)" value={form.name} required style={inputStyle} onChange={(e) => setForm({...form, name: e.target.value})} />
+            <input type="number" placeholder="Amount (₹)" value={form.amount} required style={inputStyle} onChange={(e) => setForm({...form, amount: e.target.value})} />
+            <input type="date" value={form.date} required style={inputStyle} onChange={(e) => setForm({...form, date: e.target.value})} />
+            <textarea placeholder="Description" value={form.description} style={inputStyle} onChange={(e) => setForm({...form, description: e.target.value})} />
+            <button type="submit" style={{ background: "#10b981", color: "#fff", padding: "15px", borderRadius: "10px", border: "none", fontWeight: "bold", cursor: "pointer", fontSize: "1.1rem" }}>
+              {editData ? "Update Now ✅" : "Save Expense 💵"}
             </button>
+            <button type="button" onClick={() => navigate("/expenses")} style={{ background: "#9ca3af", color: "#fff", padding: "10px", borderRadius: "10px", border: "none", cursor: "pointer" }}>Cancel</button>
           </form>
         </div>
       </div>
@@ -38,6 +57,5 @@ const AddExpense = () => {
   );
 };
 
-const inputStyle = { width: "100%", padding: "14px", marginBottom: "15px", borderRadius: "15px", border: "2px solid #F3F4F6", outline: "none", fontSize: "1rem" };
-
+const inputStyle = { padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1rem" };
 export default AddExpense;
